@@ -102,6 +102,22 @@ impl eframe::App for RustyTaskboardApp {
                     // Setting the width
                     ui.set_width(200.0);
 
+                    // Progress bar to show how much of the list is done
+
+                    // Calculating the progress
+                    let completed_value = list_window.list.tasks.len() as f32;
+                    let mut completed_task: f32 = 0.0;
+
+                    for task in &list_window.list.tasks {
+                        if task.completed() {
+                            completed_task += 1.0;
+                        }
+                    }
+
+                    let progress: f32 = completed_task / completed_value;
+
+                    ui.add(egui::ProgressBar::new(progress).show_percentage());
+
                     // Way of adding more tasks to the list
                     if ui
                         .text_edit_singleline(&mut list_window.new_task_description)
