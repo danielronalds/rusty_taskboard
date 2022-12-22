@@ -1,6 +1,4 @@
-mod app;
-
-use app::RustyTaskboardApp;
+use rusty_taskboard::app::RustyTaskboardApp;
 
 fn main() {
     let native_options = eframe::NativeOptions::default();
