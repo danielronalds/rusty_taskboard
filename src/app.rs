@@ -65,7 +65,7 @@ impl RustyTaskboardApp {
 impl eframe::App for RustyTaskboardApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // Side panel for displaying the name of the app and what windows to show
-        egui::SidePanel::left("Sidebar").show(ctx, |ui| {
+        egui::SidePanel::left("Sidebar").exact_width(200.0).show(ctx, |ui| {
             ui.heading("Rusty Taskboard");
 
             // Code for adding a new tasklist
@@ -99,19 +99,21 @@ impl eframe::App for RustyTaskboardApp {
 
                 // List's window
                 egui::Window::new(&list_window.list.name).show(ctx, |ui| {
+                    // Setting the width
+                    ui.set_width(200.0);
+
                     // Way of adding more tasks to the list
-                    ui.horizontal(|ui| {
-                        ui.text_edit_singleline(&mut list_window.new_task_description);
+                    if ui
+                        .text_edit_singleline(&mut list_window.new_task_description)
+                        .lost_focus()
+                    {
+                        if let Ok(task) = Task::new(list_window.new_task_description.clone()) {
+                            list_window.list.tasks.push(task);
 
-                        if ui.button("Add").clicked() {
-                            if let Ok(task) = Task::new(list_window.new_task_description.clone()) {
-                                list_window.list.tasks.push(task);
-
-                                // Resetting the textbox
-                                list_window.new_task_description = String::new();
-                            }
+                            // Resetting the textbox
+                            list_window.new_task_description = String::new();
                         }
-                    });
+                    }
 
                     // Displaying the current tasks
                     for task in &mut list_window.list.tasks {
