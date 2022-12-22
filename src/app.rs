@@ -11,6 +11,7 @@ const DEFAULT_PIXELS_PER_POINT: f32 = 1.5;
 #[derive(Default)]
 pub struct RustyTaskboardApp {
     lists: Vec<ListWindow>,
+    new_tasklist: String,
 }
 
 struct ListWindow {
@@ -54,7 +55,10 @@ impl RustyTaskboardApp {
             )),
         ];
 
-        Self { lists }
+        Self {
+            lists,
+            new_tasklist: String::new(),
+        }
     }
 }
 
@@ -63,6 +67,22 @@ impl eframe::App for RustyTaskboardApp {
         // Side panel for displaying the name of the app and what windows to show
         egui::SidePanel::left("Sidebar").show(ctx, |ui| {
             ui.heading("Rusty Taskboard");
+
+            // Code for adding a new tasklist
+            ui.horizontal(|ui| {
+                ui.text_edit_singleline(&mut self.new_tasklist);
+
+                if ui.button("New").clicked() {
+                    // Creating and adding a new list window with the name in the box
+                    self.lists.push(ListWindow::new(List::new(
+                        self.new_tasklist.clone(),
+                        Vec::new(),
+                    )));
+
+                    // Reseting the textbox
+                    self.new_tasklist = String::new();
+                }
+            });
 
             // Looping through each list_window
             for list_window in &mut self.lists {
@@ -74,7 +94,7 @@ impl eframe::App for RustyTaskboardApp {
         egui::CentralPanel::default().show(ctx, |_| {
             for list_window in &mut self.lists {
                 if !list_window.show {
-                    continue
+                    continue;
                 }
 
                 egui::Window::new(&list_window.list.name).show(ctx, |ui| {
@@ -85,6 +105,9 @@ impl eframe::App for RustyTaskboardApp {
                         if ui.button("Add").clicked() {
                             if let Ok(task) = Task::new(list_window.new_task_description.clone()) {
                                 list_window.list.tasks.push(task);
+
+                                // Reseting the textbox
+                                list_window.new_task_description = String::new();
                             }
                         }
                     });
