@@ -60,6 +60,16 @@ impl RustyTaskboardApp {
 
 impl eframe::App for RustyTaskboardApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        // Side panel for displaying the name of the app and what windows to show
+        egui::SidePanel::left("Sidebar").show(ctx, |ui| {
+            ui.heading("Rusty Taskboard");
+
+            // Looping through each list_window
+            for list_window in &mut self.lists {
+                ui.checkbox(&mut list_window.show, list_window.list.name.clone());
+            }
+        });
+
         // The panel to display all the tasklists in
         egui::CentralPanel::default().show(ctx, |_| {
             for list_window in &mut self.lists {
