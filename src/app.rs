@@ -90,9 +90,11 @@ impl eframe::App for RustyTaskboardApp {
 
                 // Code for adding a new tasklist
                 ui.horizontal(|ui| {
-                    ui.text_edit_singleline(&mut self.new_tasklist);
-
-                    if ui.button("New").clicked() {
+                    if ui
+                        .text_edit_singleline(&mut self.new_tasklist)
+                        .on_hover_text("Add a new list")
+                        .lost_focus()
+                    {
                         // Creating and adding a new list window with the name in the box
                         self.lists.push(ListWindow::new(List::new(
                             self.new_tasklist.clone(),
@@ -123,13 +125,12 @@ impl eframe::App for RustyTaskboardApp {
                     ui.set_width(200.0);
 
                     // Progress bar to show how much of the list is done
-
-                    // Calculating the progress
                     ui.add(egui::ProgressBar::new(list_window.list.progress()).show_percentage());
 
                     // Way of adding more tasks to the list
                     if ui
                         .text_edit_singleline(&mut list_window.new_task_description)
+                        .on_hover_text("Add a new task")
                         .lost_focus()
                     {
                         if let Ok(task) = Task::new(list_window.new_task_description.clone()) {
