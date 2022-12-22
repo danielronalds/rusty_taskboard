@@ -48,6 +48,18 @@ impl eframe::App for RustyTaskboardApp {
         egui::CentralPanel::default().show(ctx, |_| {
             for list in &mut self.lists {
                 egui::Window::new(&list.name).show(ctx, |ui| {
+                    // Way of adding more tasks to the list 
+                    ui.horizontal(|ui| {
+                        ui.text_edit_singleline(&mut list.task_to_add);
+
+                        if ui.button("Add").clicked() {
+                            if let Ok(task) = Task::new(list.task_to_add.clone()) {
+                                list.tasks.push(task);
+                            }
+                        }
+                    });
+
+                    // Displaying the current tasks
                     for task in &mut list.tasks {
                         ui.label(task.description());
                     }

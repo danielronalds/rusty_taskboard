@@ -17,13 +17,14 @@ pub enum TaskErrors {
 
 /// A list of tasks with a name
 pub struct List {
+    pub task_to_add: String,
     pub name: String,
     pub tasks: Vec<Task>
 }
 
 impl List {
     pub fn new(name: String, tasks: Vec<Task>) -> Self {
-        Self { name, tasks }
+        Self { task_to_add: String::new(), name, tasks }
     }
 }
 
