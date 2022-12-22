@@ -97,6 +97,7 @@ impl eframe::App for RustyTaskboardApp {
                     continue;
                 }
 
+                // List's window
                 egui::Window::new(&list_window.list.name).show(ctx, |ui| {
                     // Way of adding more tasks to the list
                     ui.horizontal(|ui| {
@@ -106,7 +107,7 @@ impl eframe::App for RustyTaskboardApp {
                             if let Ok(task) = Task::new(list_window.new_task_description.clone()) {
                                 list_window.list.tasks.push(task);
 
-                                // Reseting the textbox
+                                // Resetting the textbox
                                 list_window.new_task_description = String::new();
                             }
                         }
@@ -114,7 +115,10 @@ impl eframe::App for RustyTaskboardApp {
 
                     // Displaying the current tasks
                     for task in &mut list_window.list.tasks {
-                        ui.label(task.description());
+                        // Little work around the borrow checker
+                        let mut value = task.completed();
+                        ui.checkbox(&mut value, task.description());
+                        task.set_completed(value);
                     }
                 });
             }

@@ -31,8 +31,7 @@ impl List {
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize, Clone)]
 pub struct Task {
     description: String,
-    /// Public field as it needs to be modified by the checkbox
-    pub completed: bool,
+    completed: bool,
 }
 
 impl Task {
@@ -57,6 +56,16 @@ impl Task {
     /// Returns a clone of the tasks description
     pub fn description(&self) -> String {
         self.description.clone()
+    }
+
+    /// Returns if the task is completed or not
+    pub fn completed(&self) -> bool {
+        self.completed
+    }
+
+    /// Sets whether the task is completed or not
+    pub fn set_completed(&mut self, value: bool) {
+        self.completed = value;
     }
 
     /// Updates the description of the task
