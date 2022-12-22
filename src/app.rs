@@ -8,12 +8,13 @@ use crate::task::Task;
 // Const for the default pixels_per_point
 const DEFAULT_PIXELS_PER_POINT: f32 = 1.5;
 
-#[derive(Default)]
+#[derive(serde::Deserialize, serde::Serialize)]
 pub struct RustyTaskboardApp {
     lists: Vec<ListWindow>,
     new_tasklist: String,
 }
 
+#[derive(Default, serde::Deserialize, serde::Serialize)]
 struct ListWindow {
     show: bool,
     new_task_description: String,
@@ -37,6 +38,18 @@ impl RustyTaskboardApp {
         // Setting the default pixels_per_point
         cc.egui_ctx.set_pixels_per_point(DEFAULT_PIXELS_PER_POINT);
 
+        // Load previous app state (if any).
+        // Note that you must enable the `persistence` feature for this to work.
+        if let Some(storage) = cc.storage {
+            return eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
+        }
+
+        Default::default()
+    }
+}
+
+impl Default for RustyTaskboardApp {
+    fn default() -> Self {
         let lists: Vec<ListWindow> = vec![
             ListWindow::new(List::new(
                 "Main".to_owned(),
@@ -63,32 +76,39 @@ impl RustyTaskboardApp {
 }
 
 impl eframe::App for RustyTaskboardApp {
+    /// Called by the frame work to save state before shutdown.
+    fn save(&mut self, storage: &mut dyn eframe::Storage) {
+        eframe::set_value(storage, eframe::APP_KEY, self);
+    }
+
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // Side panel for displaying the name of the app and what windows to show
-        egui::SidePanel::left("Sidebar").exact_width(200.0).show(ctx, |ui| {
-            ui.heading("Rusty Taskboard");
+        egui::SidePanel::left("Sidebar")
+            .exact_width(200.0)
+            .show(ctx, |ui| {
+                ui.heading("Rusty Taskboard");
 
-            // Code for adding a new tasklist
-            ui.horizontal(|ui| {
-                ui.text_edit_singleline(&mut self.new_tasklist);
+                // Code for adding a new tasklist
+                ui.horizontal(|ui| {
+                    ui.text_edit_singleline(&mut self.new_tasklist);
 
-                if ui.button("New").clicked() {
-                    // Creating and adding a new list window with the name in the box
-                    self.lists.push(ListWindow::new(List::new(
-                        self.new_tasklist.clone(),
-                        Vec::new(),
-                    )));
+                    if ui.button("New").clicked() {
+                        // Creating and adding a new list window with the name in the box
+                        self.lists.push(ListWindow::new(List::new(
+                            self.new_tasklist.clone(),
+                            Vec::new(),
+                        )));
 
-                    // Reseting the textbox
-                    self.new_tasklist = String::new();
+                        // Reseting the textbox
+                        self.new_tasklist = String::new();
+                    }
+                });
+
+                // Looping through each list_window
+                for list_window in &mut self.lists {
+                    ui.checkbox(&mut list_window.show, list_window.list.name.clone());
                 }
             });
-
-            // Looping through each list_window
-            for list_window in &mut self.lists {
-                ui.checkbox(&mut list_window.show, list_window.list.name.clone());
-            }
-        });
 
         // The panel to display all the tasklists in
         egui::CentralPanel::default().show(ctx, |_| {
@@ -105,18 +125,7 @@ impl eframe::App for RustyTaskboardApp {
                     // Progress bar to show how much of the list is done
 
                     // Calculating the progress
-                    let completed_value = list_window.list.tasks.len() as f32;
-                    let mut completed_task: f32 = 0.0;
-
-                    for task in &list_window.list.tasks {
-                        if task.completed() {
-                            completed_task += 1.0;
-                        }
-                    }
-
-                    let progress: f32 = completed_task / completed_value;
-
-                    ui.add(egui::ProgressBar::new(progress).show_percentage());
+                    ui.add(egui::ProgressBar::new(list_window.list.progress()).show_percentage());
 
                     // Way of adding more tasks to the list
                     if ui
