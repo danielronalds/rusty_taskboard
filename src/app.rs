@@ -8,19 +8,14 @@ use crate::task::Task;
 // Const for the default pixels_per_point
 const DEFAULT_PIXELS_PER_POINT: f32 = 1.5;
 
-#[derive(serde::Deserialize, serde::Serialize)]
-pub struct RustyTaskboardApp {
-    lists: Vec<ListWindow>,
-    new_tasklist: String,
-}
-
 #[derive(Default, serde::Deserialize, serde::Serialize)]
 struct ListWindow {
     show: bool,
     new_task_description: String,
+    new_list_name: String,
     list: List,
     /// The progress shown
-    progress: f32
+    progress: f32,
 }
 
 impl ListWindow {
@@ -28,10 +23,17 @@ impl ListWindow {
         Self {
             show: true,
             new_task_description: String::new(),
+            new_list_name: String::new(),
             list,
-            progress: 0.0
+            progress: 0.0,
         }
     }
+}
+
+#[derive(serde::Deserialize, serde::Serialize)]
+pub struct RustyTaskboardApp {
+    lists: Vec<ListWindow>,
+    new_tasklist: String,
 }
 
 impl RustyTaskboardApp {
@@ -123,7 +125,7 @@ impl eframe::App for RustyTaskboardApp {
                 }
 
                 // List's window
-                egui::Window::new(&list_window.list.name).show(ctx, |ui| {
+                egui::Window::new(&list_window.list.name).resizable(false).show(ctx, |ui| {
                     // Setting the width
                     ui.set_width(200.0);
 
@@ -133,35 +135,66 @@ impl eframe::App for RustyTaskboardApp {
                         list_window.progress -= 0.01;
                         // Requesting a repaint so that the animation is smooth
                         ctx.request_repaint();
-                    }
-                    else if list_window.list.progress() > list_window.progress {
+                    } else if list_window.list.progress() > list_window.progress {
                         list_window.progress += 0.01;
                         // Requesting a repaint so that the animation is smooth
                         ctx.request_repaint();
                     }
                     ui.add(egui::ProgressBar::new(list_window.progress).show_percentage());
 
-                    // Way of adding more tasks to the list
-                    if ui
-                        .text_edit_singleline(&mut list_window.new_task_description)
-                        .on_hover_text("Add a new task")
-                        .lost_focus()
-                    {
-                        if let Ok(task) = Task::new(list_window.new_task_description.clone()) {
-                            list_window.list.tasks.push(task);
+                    ui.add_space(10.0);
 
-                            // Resetting the textbox
-                            list_window.new_task_description = String::new();
+                    ui.horizontal(|ui| {
+                        ui.label("Add ");
+                        // Way of adding more tasks to the list
+                        if ui
+                            .text_edit_singleline(&mut list_window.new_task_description)
+                            .on_hover_text("Add a new task")
+                            .lost_focus()
+                        {
+                            if let Ok(task) = Task::new(list_window.new_task_description.clone()) {
+                                list_window.list.tasks.push(task);
+
+                                // Resetting the textbox
+                                list_window.new_task_description = String::new();
+                            }
                         }
-                    }
+                    });
+
+                    ui.add_space(10.0);
 
                     // Displaying the current tasks
                     for task in &mut list_window.list.tasks {
-                        // Little work around the borrow checker
-                        let mut value = task.completed();
-                        ui.checkbox(&mut value, task.description());
-                        task.set_completed(value);
+                        ui.horizontal(|ui| {
+                            // Little work around the borrow checker
+                            let mut value = task.completed();
+                            ui.checkbox(&mut value, task.description());
+                            task.set_completed(value);
+                        });
                     }
+
+                    ui.add_space(10.0);
+
+                    ui.collapsing("Options", |ui| {
+                        ui.horizontal(|ui| {
+                            // Code to display the list_window name in the text edit box
+                            if list_window.new_list_name.is_empty() {
+                                list_window.new_list_name = list_window.list.name.clone();
+                            }
+
+                            ui.label("Name");
+                            if ui
+                                .text_edit_singleline(&mut list_window.new_list_name)
+                                .lost_focus() && !list_window.new_list_name.is_empty()
+                            {
+                                list_window.list.name = list_window.new_list_name.clone();
+                            }
+                        });
+
+                        if ui.button("Delete completed tasks").clicked() {
+                            list_window.list.tasks.retain(|task| !task.completed());
+                        }
+                    });
                 });
             }
         });
