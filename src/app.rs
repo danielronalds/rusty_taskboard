@@ -19,6 +19,8 @@ struct ListWindow {
     show: bool,
     new_task_description: String,
     list: List,
+    /// The progress shown
+    progress: f32
 }
 
 impl ListWindow {
@@ -27,6 +29,7 @@ impl ListWindow {
             show: true,
             new_task_description: String::new(),
             list,
+            progress: 0.0
         }
     }
 }
@@ -125,7 +128,18 @@ impl eframe::App for RustyTaskboardApp {
                     ui.set_width(200.0);
 
                     // Progress bar to show how much of the list is done
-                    ui.add(egui::ProgressBar::new(list_window.list.progress()).show_percentage());
+                    // Animating the progress bar
+                    if list_window.list.progress() < list_window.progress {
+                        list_window.progress -= 0.01;
+                        // Requesting a repaint so that the animation is smooth
+                        ctx.request_repaint();
+                    }
+                    else if list_window.list.progress() > list_window.progress {
+                        list_window.progress += 0.01;
+                        // Requesting a repaint so that the animation is smooth
+                        ctx.request_repaint();
+                    }
+                    ui.add(egui::ProgressBar::new(list_window.progress).show_percentage());
 
                     // Way of adding more tasks to the list
                     if ui
