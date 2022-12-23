@@ -13,6 +13,7 @@ struct ListWindow {
     show: bool,
     new_task_description: String,
     new_list_name: String,
+    delete_mode: bool,
     list: List,
     /// The progress shown
     progress: f32,
@@ -24,6 +25,7 @@ impl ListWindow {
             show: true,
             new_task_description: String::new(),
             new_list_name: String::new(),
+            delete_mode: false,
             list,
             progress: 0.0,
         }
@@ -163,15 +165,27 @@ impl eframe::App for RustyTaskboardApp {
 
                     ui.add_space(10.0);
 
+                    let mut task_to_be_deleted = Task::new_empty();
+
                     // Displaying the current tasks
                     for task in &mut list_window.list.tasks {
                         ui.horizontal(|ui| {
+                            // Allows the user to delete a task, only if the mode is enabled
+                            if list_window.delete_mode {
+                                if ui.button("X").clicked() {
+                                    task_to_be_deleted = task.clone();
+                                }
+                            }
+
                             // Little work around the borrow checker
                             let mut value = task.completed();
                             ui.checkbox(&mut value, task.description());
                             task.set_completed(value);
                         });
                     }
+
+                    // Currently the problem with this is that it doesnt only delete the one task
+                    list_window.list.tasks.retain(|task| task != &task_to_be_deleted);
 
                     ui.add_space(10.0);
 
@@ -190,6 +204,12 @@ impl eframe::App for RustyTaskboardApp {
                                 list_window.list.name = list_window.new_list_name.clone();
                             }
                         });
+
+                        ui.add_space(10.0);
+
+                        ui.checkbox(&mut list_window.delete_mode, "Remove tasks");
+
+                        ui.add_space(10.0);
 
                         if ui.button("Delete completed tasks").clicked() {
                             list_window.list.tasks.retain(|task| !task.completed());

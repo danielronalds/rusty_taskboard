@@ -71,6 +71,14 @@ impl Task {
         })
     }
 
+    /// Returns an empty task
+    pub fn new_empty() -> Task {
+        Self {
+            description: String::new(),
+            completed: false,
+        }
+    }
+
     /// Returns a clone of the tasks description
     pub fn description(&self) -> String {
         self.description.clone()
