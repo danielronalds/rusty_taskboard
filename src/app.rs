@@ -90,9 +90,10 @@ impl eframe::App for RustyTaskboardApp {
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // Side panel for displaying the name of the app and what windows to show
-        egui::SidePanel::left("Sidebar")
-            .exact_width(200.0)
-            .show(ctx, |ui| {
+        egui::TopBottomPanel::top("Sidebar").show(ctx, |ui| {
+            ui.horizontal(|ui| {
+                // Setting height
+                ui.set_height(40.0);
                 ui.heading("Rusty Taskboard");
 
                 // Code for adding a new tasklist
