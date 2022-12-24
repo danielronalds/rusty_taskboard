@@ -133,8 +133,16 @@ impl eframe::App for RustyTaskboardApp {
                     ui.set_width(200.0);
 
                     // Progress bar to show how much of the list is done
-                    // Animating the progress bar
-                    if list_window.list.progress() < list_window.progress {
+
+                    // If the progress is within a certain range, just set it to exactly the
+                    // progress
+                    if (list_window.progress - list_window.list.progress()) < 0.01
+                        && (list_window.progress - list_window.list.progress()) > -0.01
+                        && !(list_window.progress == list_window.list.progress())
+                    {
+                        list_window.progress = list_window.list.progress();
+                    }
+                    else if list_window.list.progress() < list_window.progress {
                         list_window.progress -= 0.01;
                         // Requesting a repaint so that the animation is smooth
                         ctx.request_repaint();
