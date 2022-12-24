@@ -89,13 +89,17 @@ impl eframe::App for RustyTaskboardApp {
     }
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        // Side panel for displaying the name of the app and what windows to show
+        // Top panel for displaying the name of the app and what windows to show
         egui::TopBottomPanel::top("Sidebar").show(ctx, |ui| {
             ui.horizontal(|ui| {
                 // Setting height
                 ui.set_height(40.0);
 
                 ui.heading("Rusty Taskboard");
+
+                ui.separator();
+
+                ui.label("Add List ");
 
                 // Code for adding a new tasklist
                 if ui
@@ -113,6 +117,8 @@ impl eframe::App for RustyTaskboardApp {
                     self.new_tasklist = String::new();
                 }
 
+                ui.separator();
+
                 // Looping through each list_window
                 for list_window in &mut self.lists {
                     ui.checkbox(&mut list_window.show, list_window.list.name.clone());
@@ -121,7 +127,7 @@ impl eframe::App for RustyTaskboardApp {
         });
 
         // The panel to display all the tasklists in
-        egui::CentralPanel::default().show(ctx, |_| {
+        egui::CentralPanel::default().show(ctx, |_ui| {
             for list_window in &mut self.lists {
                 if !list_window.show {
                     continue;
