@@ -128,7 +128,7 @@ impl eframe::App for RustyTaskboardApp {
 
         // The panel to display all the tasklists in
         egui::CentralPanel::default().show(ctx, |_ui| {
-            let mut list_to_delete = ListWindow::new(List::new("".to_string(), Vec::new()));
+            let mut list_to_delete = None;
 
             for list_window in &mut self.lists {
                 if !list_window.show {
@@ -181,14 +181,14 @@ impl eframe::App for RustyTaskboardApp {
 
                     ui.add_space(10.0);
 
-                    let mut task_to_be_deleted = Task::new_empty();
+                    let mut task_to_be_deleted = None;
 
                     // Displaying the current tasks
                     for task in &mut list_window.list.tasks {
                         ui.horizontal(|ui| {
                             // Allows the user to delete a task, only if the mode is enabled
                             if list_window.delete_mode && ui.button("X").clicked() {
-                                task_to_be_deleted = task.clone();
+                                task_to_be_deleted = Some(task.clone());
                             }
 
                             // Little work around the borrow checker
@@ -199,10 +199,12 @@ impl eframe::App for RustyTaskboardApp {
                     }
 
                     // Currently the problem with this is that it doesnt only delete the one task
-                    list_window
-                        .list
-                        .tasks
-                        .retain(|task| task != &task_to_be_deleted);
+                    if let Some(task_to_delete) = task_to_be_deleted {
+                        list_window
+                            .list
+                            .tasks
+                            .retain(|task| task != &task_to_delete);
+                    }
 
                     ui.add_space(10.0);
 
@@ -233,15 +235,18 @@ impl eframe::App for RustyTaskboardApp {
 
                         ui.add_space(10.0);
                         if ui.button("Delete list").clicked() {
-                            list_to_delete = list_window.clone();
+                            list_to_delete = Some(list_window.clone());
                         }
                     });
                 });
             }
 
-            self.lists.retain(|list| {
-                list.list != list_to_delete.list && list.list.name != list_to_delete.list.name
-            });
+            // Deleting the list if it
+            if let Some(list_to_delete) = list_to_delete {
+                self.lists.retain(|list| {
+                    list.list != list_to_delete.list && list.list.name != list_to_delete.list.name
+                });
+            }
         });
     }
 }
