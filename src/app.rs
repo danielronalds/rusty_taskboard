@@ -36,6 +36,7 @@ impl ListWindow {
 pub struct RustyTaskboardApp {
     lists: Vec<ListWindow>,
     new_tasklist: String,
+    show_settings: bool,
 }
 
 impl RustyTaskboardApp {
@@ -78,6 +79,7 @@ impl Default for RustyTaskboardApp {
         Self {
             lists,
             new_tasklist: String::new(),
+            show_settings: false,
         }
     }
 }
@@ -122,6 +124,11 @@ impl eframe::App for RustyTaskboardApp {
                 // Looping through each list_window
                 for list_window in &mut self.lists {
                     ui.checkbox(&mut list_window.show, list_window.list.name.clone());
+                }
+
+                // Checkbox for showing the setting window
+                if ui.button("Settings").clicked() {
+                    self.show_settings = !self.show_settings;
                 }
             });
         });
@@ -245,6 +252,16 @@ impl eframe::App for RustyTaskboardApp {
             if let Some(list_to_delete) = list_to_delete {
                 self.lists.retain(|list| {
                     list.list != list_to_delete.list && list.list.name != list_to_delete.list.name
+                });
+            }
+
+            // Showing the settings window if it should be open
+            if self.show_settings {
+                egui::Window::new("Settings").show(ctx, |ui| {
+                    ui.label("Zoom Factor");
+                    let mut slider_value = ctx.pixels_per_point();
+                    ui.add(egui::Slider::new(&mut slider_value, 1.0..=2.0));
+                    ctx.set_pixels_per_point(slider_value);
                 });
             }
         });
