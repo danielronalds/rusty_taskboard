@@ -94,6 +94,7 @@ impl eframe::App for RustyTaskboardApp {
             ui.horizontal(|ui| {
                 // Setting height
                 ui.set_height(40.0);
+
                 ui.heading("Rusty Taskboard");
 
                 // Code for adding a new tasklist
@@ -127,101 +128,97 @@ impl eframe::App for RustyTaskboardApp {
                 }
 
                 // List's window
-                egui::Window::new(&list_window.list.name)
-                    .resizable(false)
-                    .show(ctx, |ui| {
-                        // Setting the width
-                        ui.set_width(200.0);
+                egui::Window::new(&list_window.list.name).show(ctx, |ui| {
+                    // Setting the width
+                    ui.set_width(200.0);
 
-                        // Progress bar to show how much of the list is done
-                        // Animating the progress bar
-                        if list_window.list.progress() < list_window.progress {
-                            list_window.progress -= 0.01;
-                            // Requesting a repaint so that the animation is smooth
-                            ctx.request_repaint();
-                        } else if list_window.list.progress() > list_window.progress {
-                            list_window.progress += 0.01;
-                            // Requesting a repaint so that the animation is smooth
-                            ctx.request_repaint();
-                        }
-                        ui.add(egui::ProgressBar::new(list_window.progress).show_percentage());
+                    // Progress bar to show how much of the list is done
+                    // Animating the progress bar
+                    if list_window.list.progress() < list_window.progress {
+                        list_window.progress -= 0.01;
+                        // Requesting a repaint so that the animation is smooth
+                        ctx.request_repaint();
+                    } else if list_window.list.progress() > list_window.progress {
+                        list_window.progress += 0.01;
+                        // Requesting a repaint so that the animation is smooth
+                        ctx.request_repaint();
+                    }
+                    ui.add(egui::ProgressBar::new(list_window.progress).show_percentage());
 
-                        ui.add_space(10.0);
+                    ui.add_space(10.0);
 
-                        ui.horizontal(|ui| {
-                            ui.label("Add ");
-                            // Way of adding more tasks to the list
-                            if ui
-                                .text_edit_singleline(&mut list_window.new_task_description)
-                                .on_hover_text("Add a new task")
-                                .lost_focus()
-                            {
-                                if let Ok(task) =
-                                    Task::new(list_window.new_task_description.clone())
-                                {
-                                    list_window.list.tasks.push(task);
+                    ui.horizontal(|ui| {
+                        ui.label("Add ");
+                        // Way of adding more tasks to the list
+                        if ui
+                            .text_edit_singleline(&mut list_window.new_task_description)
+                            .on_hover_text("Add a new task")
+                            .lost_focus()
+                        {
+                            if let Ok(task) = Task::new(list_window.new_task_description.clone()) {
+                                list_window.list.tasks.push(task);
 
-                                    // Resetting the textbox
-                                    list_window.new_task_description = String::new();
-                                }
+                                // Resetting the textbox
+                                list_window.new_task_description = String::new();
                             }
-                        });
-
-                        ui.add_space(10.0);
-
-                        let mut task_to_be_deleted = Task::new_empty();
-
-                        // Displaying the current tasks
-                        for task in &mut list_window.list.tasks {
-                            ui.horizontal(|ui| {
-                                // Allows the user to delete a task, only if the mode is enabled
-                                if list_window.delete_mode && ui.button("X").clicked() {
-                                    task_to_be_deleted = task.clone();
-                                }
-
-                                // Little work around the borrow checker
-                                let mut value = task.completed();
-                                ui.checkbox(&mut value, task.description());
-                                task.set_completed(value);
-                            });
                         }
-
-                        // Currently the problem with this is that it doesnt only delete the one task
-                        list_window
-                            .list
-                            .tasks
-                            .retain(|task| task != &task_to_be_deleted);
-
-                        ui.add_space(10.0);
-
-                        ui.collapsing("Options", |ui| {
-                            ui.horizontal(|ui| {
-                                // Code to display the list_window name in the text edit box
-                                if list_window.new_list_name.is_empty() {
-                                    list_window.new_list_name = list_window.list.name.clone();
-                                }
-
-                                ui.label("Name");
-                                if ui
-                                    .text_edit_singleline(&mut list_window.new_list_name)
-                                    .lost_focus()
-                                    && !list_window.new_list_name.is_empty()
-                                {
-                                    list_window.list.name = list_window.new_list_name.clone();
-                                }
-                            });
-
-                            ui.add_space(10.0);
-
-                            ui.checkbox(&mut list_window.delete_mode, "Remove tasks");
-
-                            ui.add_space(10.0);
-
-                            if ui.button("Delete completed tasks").clicked() {
-                                list_window.list.tasks.retain(|task| !task.completed());
-                            }
-                        });
                     });
+
+                    ui.add_space(10.0);
+
+                    let mut task_to_be_deleted = Task::new_empty();
+
+                    // Displaying the current tasks
+                    for task in &mut list_window.list.tasks {
+                        ui.horizontal(|ui| {
+                            // Allows the user to delete a task, only if the mode is enabled
+                            if list_window.delete_mode && ui.button("X").clicked() {
+                                task_to_be_deleted = task.clone();
+                            }
+
+                            // Little work around the borrow checker
+                            let mut value = task.completed();
+                            ui.checkbox(&mut value, task.description());
+                            task.set_completed(value);
+                        });
+                    }
+
+                    // Currently the problem with this is that it doesnt only delete the one task
+                    list_window
+                        .list
+                        .tasks
+                        .retain(|task| task != &task_to_be_deleted);
+
+                    ui.add_space(10.0);
+
+                    ui.collapsing("Options", |ui| {
+                        ui.horizontal(|ui| {
+                            // Code to display the list_window name in the text edit box
+                            if list_window.new_list_name.is_empty() {
+                                list_window.new_list_name = list_window.list.name.clone();
+                            }
+
+                            ui.label("Name");
+                            if ui
+                                .text_edit_singleline(&mut list_window.new_list_name)
+                                .lost_focus()
+                                && !list_window.new_list_name.is_empty()
+                            {
+                                list_window.list.name = list_window.new_list_name.clone();
+                            }
+                        });
+
+                        ui.add_space(10.0);
+
+                        ui.checkbox(&mut list_window.delete_mode, "Remove tasks");
+
+                        ui.add_space(10.0);
+
+                        if ui.button("Delete completed tasks").clicked() {
+                            list_window.list.tasks.retain(|task| !task.completed());
+                        }
+                    });
+                });
             }
         });
     }
