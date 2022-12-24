@@ -262,6 +262,9 @@ impl eframe::App for RustyTaskboardApp {
                     let mut slider_value = ctx.pixels_per_point();
                     ui.add(egui::Slider::new(&mut slider_value, 1.0..=2.0));
                     ctx.set_pixels_per_point(slider_value);
+
+                    ui.add_space(10.0);
+                    ui.label(format!("Rusty Taskboards v{}", env!("CARGO_PKG_VERSION")))
                 });
             }
         });
