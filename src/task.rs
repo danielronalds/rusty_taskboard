@@ -16,7 +16,7 @@ pub enum TaskErrors {
 }
 
 /// A list of tasks with a name
-#[derive(Default, serde::Deserialize, serde::Serialize)]
+#[derive(Default, Clone, serde::Deserialize, serde::Serialize, PartialEq, Eq)]
 pub struct List {
     pub name: String,
     pub tasks: Vec<Task>,

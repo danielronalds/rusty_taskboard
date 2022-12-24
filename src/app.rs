@@ -8,7 +8,7 @@ use crate::task::Task;
 // Const for the default pixels_per_point
 const DEFAULT_PIXELS_PER_POINT: f32 = 1.5;
 
-#[derive(Default, serde::Deserialize, serde::Serialize)]
+#[derive(Default, Clone, serde::Deserialize, serde::Serialize)]
 struct ListWindow {
     show: bool,
     new_task_description: String,
@@ -128,6 +128,8 @@ impl eframe::App for RustyTaskboardApp {
 
         // The panel to display all the tasklists in
         egui::CentralPanel::default().show(ctx, |_ui| {
+            let mut list_to_delete = ListWindow::new(List::new("".to_string(), Vec::new()));
+
             for list_window in &mut self.lists {
                 if !list_window.show {
                     continue;
@@ -147,8 +149,7 @@ impl eframe::App for RustyTaskboardApp {
                         && !(list_window.progress == list_window.list.progress())
                     {
                         list_window.progress = list_window.list.progress();
-                    }
-                    else if list_window.list.progress() < list_window.progress {
+                    } else if list_window.list.progress() < list_window.progress {
                         list_window.progress -= 0.01;
                         // Requesting a repaint so that the animation is smooth
                         ctx.request_repaint();
@@ -223,17 +224,24 @@ impl eframe::App for RustyTaskboardApp {
                         });
 
                         ui.add_space(10.0);
-
                         ui.checkbox(&mut list_window.delete_mode, "Remove tasks");
 
                         ui.add_space(10.0);
-
                         if ui.button("Delete completed tasks").clicked() {
                             list_window.list.tasks.retain(|task| !task.completed());
+                        }
+
+                        ui.add_space(10.0);
+                        if ui.button("Delete list").clicked() {
+                            list_to_delete = list_window.clone();
                         }
                     });
                 });
             }
+
+            self.lists.retain(|list| {
+                list.list != list_to_delete.list && list.list.name != list_to_delete.list.name
+            });
         });
     }
 }
