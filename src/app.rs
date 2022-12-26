@@ -2,35 +2,11 @@
 
 use eframe::egui;
 
-use crate::task::List;
+use crate::list::{List, ListWindow};
 use crate::task::Task;
 
 // Const for the default pixels_per_point
 const DEFAULT_PIXELS_PER_POINT: f32 = 1.5;
-
-#[derive(Default, Clone, serde::Deserialize, serde::Serialize)]
-struct ListWindow {
-    show: bool,
-    new_task_description: String,
-    new_list_name: String,
-    delete_mode: bool,
-    list: List,
-    /// The progress shown
-    progress: f32,
-}
-
-impl ListWindow {
-    pub fn new(list: List) -> Self {
-        Self {
-            show: true,
-            new_task_description: String::new(),
-            new_list_name: String::new(),
-            delete_mode: false,
-            list,
-            progress: 0.0,
-        }
-    }
-}
 
 #[derive(serde::Deserialize, serde::Serialize)]
 pub struct RustyTaskboardApp {
@@ -123,7 +99,7 @@ impl eframe::App for RustyTaskboardApp {
 
                 // Looping through each list_window
                 for list_window in &mut self.lists {
-                    ui.checkbox(&mut list_window.show, list_window.list.name.clone());
+                    ui.checkbox(&mut list_window.show(), list_window.list_name());
                 }
 
                 // Checkbox for showing the setting window
@@ -138,34 +114,18 @@ impl eframe::App for RustyTaskboardApp {
             let mut list_to_delete = None;
 
             for list_window in &mut self.lists {
-                if !list_window.show {
+                if !list_window.show() {
                     continue;
                 }
 
                 // List's window
-                egui::Window::new(&list_window.list.name).show(ctx, |ui| {
+                egui::Window::new(&list_window.list_name()).show(ctx, |ui| {
                     // Setting the width
                     ui.set_width(200.0);
 
-                    // Progress bar to show how much of the list is done
+                    list_window.animate_bar(ctx);
 
-                    // If the progress is within a certain range, just set it to exactly the
-                    // progress
-                    if (list_window.progress - list_window.list.progress()) < 0.01
-                        && (list_window.progress - list_window.list.progress()) > -0.01
-                        && !(list_window.progress == list_window.list.progress())
-                    {
-                        list_window.progress = list_window.list.progress();
-                    } else if list_window.list.progress() < list_window.progress {
-                        list_window.progress -= 0.01;
-                        // Requesting a repaint so that the animation is smooth
-                        ctx.request_repaint();
-                    } else if list_window.list.progress() > list_window.progress {
-                        list_window.progress += 0.01;
-                        // Requesting a repaint so that the animation is smooth
-                        ctx.request_repaint();
-                    }
-                    ui.add(egui::ProgressBar::new(list_window.progress).show_percentage());
+                    ui.add(egui::ProgressBar::new(list_window.progress()).show_percentage());
 
                     ui.add_space(10.0);
 
@@ -173,15 +133,15 @@ impl eframe::App for RustyTaskboardApp {
                         ui.label("Add ");
                         // Way of adding more tasks to the list
                         if ui
-                            .text_edit_singleline(&mut list_window.new_task_description)
+                            .text_edit_singleline(list_window.mut_new_task_description())
                             .on_hover_text("Add a new task")
                             .lost_focus()
                         {
-                            if let Ok(task) = Task::new(list_window.new_task_description.clone()) {
-                                list_window.list.tasks.push(task);
+                            if let Ok(task) = Task::new(list_window.new_task_description()) {
+                                list_window.add_task(task);
 
                                 // Resetting the textbox
-                                list_window.new_task_description = String::new();
+                                list_window.reset_new_task_description();
                             }
                         }
                     });
@@ -191,12 +151,12 @@ impl eframe::App for RustyTaskboardApp {
                     let mut task_to_be_deleted = None;
 
                     // Displaying the current tasks
-                    for task in &mut list_window.list.tasks {
+                    for task in list_window.mut_task_vec() {
                         ui.horizontal(|ui| {
                             // Allows the user to delete a task, only if the mode is enabled
-                            if list_window.delete_mode && ui.button("X").clicked() {
-                                task_to_be_deleted = Some(task.clone());
-                            }
+                            //if list_window.delete_mode() && ui.button("X").clicked() {
+                           //    task_to_be_deleted = Some(task.clone());
+                           //}
 
                             // Little work around the borrow checker
                             let mut value = task.completed();
@@ -207,10 +167,7 @@ impl eframe::App for RustyTaskboardApp {
 
                     // Currently the problem with this is that it doesnt only delete the one task
                     if let Some(task_to_delete) = task_to_be_deleted {
-                        list_window
-                            .list
-                            .tasks
-                            .retain(|task| task != &task_to_delete);
+                        list_window.delete_task(task_to_delete);
                     }
 
                     ui.add_space(10.0);
@@ -218,26 +175,26 @@ impl eframe::App for RustyTaskboardApp {
                     ui.collapsing("Options", |ui| {
                         ui.horizontal(|ui| {
                             // Code to display the list_window name in the text edit box
-                            if list_window.new_list_name.is_empty() {
-                                list_window.new_list_name = list_window.list.name.clone();
+                            if list_window.new_list_name().is_empty() {
+                                list_window.set_new_list_name(list_window.list_name());
                             }
 
                             ui.label("Name");
                             if ui
-                                .text_edit_singleline(&mut list_window.new_list_name)
+                                .text_edit_singleline(list_window.mut_new_list_name())
                                 .lost_focus()
-                                && !list_window.new_list_name.is_empty()
+                                && !list_window.new_list_name().is_empty()
                             {
-                                list_window.list.name = list_window.new_list_name.clone();
+                                list_window.set_list_name(list_window.new_list_name());
                             }
                         });
 
                         ui.add_space(10.0);
-                        ui.checkbox(&mut list_window.delete_mode, "Remove tasks");
+                        ui.checkbox(list_window.mut_delete_mode(), "Remove tasks");
 
                         ui.add_space(10.0);
                         if ui.button("Delete completed tasks").clicked() {
-                            list_window.list.tasks.retain(|task| !task.completed());
+                            list_window.delete_completed_tasks();
                         }
 
                         ui.add_space(10.0);
@@ -251,7 +208,8 @@ impl eframe::App for RustyTaskboardApp {
             // Deleting the list if it
             if let Some(list_to_delete) = list_to_delete {
                 self.lists.retain(|list| {
-                    list.list != list_to_delete.list && list.list.name != list_to_delete.list.name
+                    list.task_vec_clone() != list_to_delete.task_vec_clone()
+                        && list.list_name() != list_to_delete.list_name()
                 });
             }
 

@@ -15,36 +15,6 @@ pub enum TaskErrors {
     EmptyList,
 }
 
-/// A list of tasks with a name
-#[derive(Default, Clone, serde::Deserialize, serde::Serialize, PartialEq, Eq)]
-pub struct List {
-    pub name: String,
-    pub tasks: Vec<Task>,
-}
-
-impl List {
-    pub fn new(name: String, tasks: Vec<Task>) -> Self {
-        Self { name, tasks }
-    }
-
-    /// Calculates the progress of the list
-    pub fn progress(&self) -> f32 {
-        // Calculating what the max completed_value could be
-        let completed_value = self.tasks.len() as f32;
-
-        // Calculating the actual completed value
-        let mut completed_task: f32 = 0.0;
-
-        for task in &self.tasks {
-            if task.completed() {
-                completed_task += 1.0;
-            }
-        }
-
-        completed_task / completed_value
-    }
-}
-
 /// Struct to represent a task
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize, Clone)]
 pub struct Task {
