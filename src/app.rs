@@ -99,7 +99,9 @@ impl eframe::App for RustyTaskboardApp {
 
                 // Looping through each list_window
                 for list_window in &mut self.lists {
-                    ui.checkbox(&mut list_window.show(), list_window.list_name());
+                    let mut new_show = list_window.show();
+                    ui.checkbox(&mut new_show, list_window.list_name());
+                    list_window.set_show(new_show);
                 }
 
                 // Checkbox for showing the setting window

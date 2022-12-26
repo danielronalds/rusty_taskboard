@@ -65,6 +65,11 @@ impl ListWindow {
         self.show
     }
 
+    /// Sets the value of self.show
+    pub fn set_show(&mut self, value: bool) {
+        self.show = value
+    }
+
     /// Returns the list name
     pub fn list_name(&self) -> String {
         self.list.name.clone()
