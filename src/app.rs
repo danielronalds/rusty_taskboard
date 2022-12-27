@@ -158,7 +158,7 @@ impl eframe::App for RustyTaskboardApp {
                     // the closure along side the mutable borrow used to change the status of a
                     // task
                     for i in 0..list_window.task_vec().len() {
-                        ui.horizontal(|ui| {
+                        ui.horizontal_wrapped(|ui| {
                             // Allows the user to delete a task, only if the mode is enabled
                             if list_window.delete_mode() && ui.button("X").clicked() {
                                 task_to_be_deleted = Some(list_window.task_vec()[i].clone());
