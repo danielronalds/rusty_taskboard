@@ -18,6 +18,7 @@ pub enum TaskErrors {
 /// Struct to represent a task
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize, Clone)]
 pub struct Task {
+    new_description: String,
     description: String,
     completed: bool,
 }
@@ -36,14 +37,32 @@ impl Task {
         }
 
         Ok(Task {
+            new_description: String::new(),
             description,
             completed: false,
         })
     }
 
+    /// Returns a clone of self.new_description
+    pub fn new_description(&self) -> String {
+        self.new_description.clone()
+    }
+
+    /// Returns a mutable reference to self.new_description
+    pub fn mut_new_description(&mut self) -> &mut String {
+        &mut self.new_description
+    }
+
+    /// Sets the value of new_description, currently no validation checking
+    pub fn set_new_description(&mut self, new_description: String) {
+        self.new_description = new_description;
+    }
+
+
     /// Returns an empty task
     pub fn new_empty() -> Task {
         Self {
+            new_description: String::new(),
             description: String::new(),
             completed: false,
         }

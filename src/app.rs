@@ -161,7 +161,28 @@ impl eframe::App for RustyTaskboardApp {
                         ui.horizontal(|ui| {
                             // Allows the user to delete a task, only if the mode is enabled
                             if list_window.delete_mode() && ui.button("X").clicked() {
-                               task_to_be_deleted = Some(list_window.task_vec()[i].clone());
+                                task_to_be_deleted = Some(list_window.task_vec()[i].clone());
+                            }
+
+                            // Displaying the textbox for editing a task's description
+                            if list_window.update_tasks() {
+                                ui.text_edit_singleline(
+                                    list_window.mut_task_vec()[i].mut_new_description(),
+                                );
+                                return;
+                            }
+
+                            // If update_task is false, then the user must be finished editing
+                            // tasks. If new_description is empty, set it to the current
+                            // description, else set it as the new description
+                            if list_window.task_vec()[i].new_description().is_empty() {
+                                let new_description =
+                                    list_window.task_vec()[i].description().clone();
+                                list_window.mut_task_vec()[i].set_new_description(new_description);
+                            } else {
+                                let new_description =
+                                    list_window.task_vec()[i].new_description().clone();
+                                list_window.mut_task_vec()[i].update_description(new_description).unwrap_or(());
                             }
 
                             // Little work around the borrow checker
@@ -197,6 +218,9 @@ impl eframe::App for RustyTaskboardApp {
 
                         ui.add_space(10.0);
                         ui.checkbox(list_window.mut_delete_mode(), "Remove tasks");
+
+                        ui.add_space(10.0);
+                        ui.checkbox(list_window.mut_update_tasks(), "Enable task editing");
 
                         ui.add_space(10.0);
                         if ui.button("Delete completed tasks").clicked() {

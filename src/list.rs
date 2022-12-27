@@ -43,6 +43,7 @@ pub struct ListWindow {
     new_task_description: String,
     new_list_name: String,
     delete_mode: bool,
+    update_tasks: bool,
     list: List,
     progress: f32,
 }
@@ -55,6 +56,7 @@ impl ListWindow {
             new_task_description: String::new(),
             new_list_name: String::new(),
             delete_mode: false,
+            update_tasks: false,
             list,
             progress: 0.0,
         }
@@ -88,6 +90,16 @@ impl ListWindow {
     /// Returns a mutable reference to self.delete_mode
     pub fn mut_delete_mode(&mut self) -> &mut bool {
         &mut self.delete_mode
+    }
+
+    /// Returns self.update_tasks
+    pub fn update_tasks(&self) -> bool {
+        self.update_tasks
+    }
+
+    /// Returns a mutable reference to self.update_tasks
+    pub fn mut_update_tasks(&mut self) -> &mut bool {
+        &mut self.update_tasks
     }
 
     /// Returns the progress bar progress
