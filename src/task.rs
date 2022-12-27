@@ -10,10 +10,7 @@ pub enum TaskStatus {
 
 /// Enum for storing possible errors
 #[derive(Debug, PartialEq, Eq)]
-pub enum TaskErrors {
-    EmptyDescription,
-    EmptyList,
-}
+pub struct EmptyDescription;
 
 /// Struct to represent a task
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize, Clone)]
@@ -30,10 +27,10 @@ impl Task {
     /// description:   The task's description
     /// status:        The task's status
     /// list:          The list the task belongs to
-    pub fn new(description: String) -> Result<Task, TaskErrors> {
+    pub fn new(description: String) -> Result<Task, EmptyDescription> {
         // Return an error if the description is empty
         if description.is_empty() {
-            return Err(TaskErrors::EmptyDescription);
+            return Err(EmptyDescription);
         }
 
         Ok(Task {
@@ -58,16 +55,6 @@ impl Task {
         self.new_description = new_description;
     }
 
-
-    /// Returns an empty task
-    pub fn new_empty() -> Task {
-        Self {
-            new_description: String::new(),
-            description: String::new(),
-            completed: false,
-        }
-    }
-
     /// Returns a clone of the tasks description
     pub fn description(&self) -> String {
         self.description.clone()
@@ -87,10 +74,10 @@ impl Task {
     ///
     /// Parameters
     /// new_description:   The new description of the task
-    pub fn update_description(&mut self, new_description: String) -> Result<(), TaskErrors> {
+    pub fn update_description(&mut self, new_description: String) -> Result<(), EmptyDescription> {
         // Return an error if the new description is empty
         if new_description.is_empty() {
-            return Err(TaskErrors::EmptyDescription);
+            return Err(EmptyDescription);
         }
 
         self.description = new_description;
@@ -123,7 +110,7 @@ mod tests {
 
         let task_error = Task::new(description).unwrap_err();
 
-        assert_eq!(task_error, TaskErrors::EmptyDescription)
+        assert_eq!(task_error, EmptyDescription)
     }
 
     #[test]
@@ -153,6 +140,6 @@ mod tests {
             .update_description(new_description.clone())
             .unwrap_err();
 
-        assert_eq!(err, TaskErrors::EmptyDescription)
+        assert_eq!(err, EmptyDescription)
     }
 }
