@@ -153,17 +153,21 @@ impl eframe::App for RustyTaskboardApp {
                     let mut task_to_be_deleted = None;
 
                     // Displaying the current tasks
-                    for task in list_window.mut_task_vec() {
+                    //
+                    // The for loop with a range is used so that an immutable borrow can be used in
+                    // the closure along side the mutable borrow used to change the status of a
+                    // task
+                    for i in 0..list_window.task_vec().len() {
                         ui.horizontal(|ui| {
                             // Allows the user to delete a task, only if the mode is enabled
-                            //if list_window.delete_mode() && ui.button("X").clicked() {
-                           //    task_to_be_deleted = Some(task.clone());
-                           //}
+                            if list_window.delete_mode() && ui.button("X").clicked() {
+                               task_to_be_deleted = Some(list_window.task_vec()[i].clone());
+                            }
 
                             // Little work around the borrow checker
-                            let mut value = task.completed();
-                            ui.checkbox(&mut value, task.description());
-                            task.set_completed(value);
+                            let mut value = list_window.task_vec()[i].completed();
+                            ui.checkbox(&mut value, list_window.task_vec()[i].description());
+                            list_window.mut_task_vec()[i].set_completed(value);
                         });
                     }
 
