@@ -176,13 +176,13 @@ impl eframe::App for RustyTaskboardApp {
                             // tasks. If new_description is empty, set it to the current
                             // description, else set it as the new description
                             if list_window.task_vec()[i].new_description().is_empty() {
-                                let new_description =
-                                    list_window.task_vec()[i].description();
+                                let new_description = list_window.task_vec()[i].description();
                                 list_window.mut_task_vec()[i].set_new_description(new_description);
                             } else {
-                                let new_description =
-                                    list_window.task_vec()[i].new_description();
-                                list_window.mut_task_vec()[i].update_description(new_description).unwrap_or(());
+                                let new_description = list_window.task_vec()[i].new_description();
+                                list_window.mut_task_vec()[i]
+                                    .update_description(new_description)
+                                    .unwrap_or(());
                             }
 
                             // Little work around the borrow checker
