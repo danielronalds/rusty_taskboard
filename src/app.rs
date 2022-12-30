@@ -85,14 +85,25 @@ impl eframe::App for RustyTaskboardApp {
                     .on_hover_text("Add a new list")
                     .lost_focus()
                 {
-                    // Creating and adding a new list window with the name in the box
-                    self.lists.push(ListWindow::new(List::new(
-                        self.new_tasklist.clone(),
-                        Vec::new(),
-                    )));
+                    let mut list_exists = false;
 
-                    // Reseting the textbox
-                    self.new_tasklist = String::new();
+                    // Checking to make sure a list with the same name doesn't already exist
+                    for list in &self.lists {
+                        if &list.list_name() == &self.new_tasklist {
+                            list_exists = true;
+                        }
+                    }
+
+                    // Creating and adding a new list window with the name in the box
+                    if !list_exists {
+                        self.lists.push(ListWindow::new(List::new(
+                            self.new_tasklist.clone(),
+                            Vec::new(),
+                        )));
+
+                        // Reseting the textbox
+                        self.new_tasklist = String::new();
+                    }
                 }
 
                 ui.separator();
