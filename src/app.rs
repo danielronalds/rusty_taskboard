@@ -9,10 +9,12 @@ use crate::task::Task;
 const DEFAULT_PIXELS_PER_POINT: f32 = 1.5;
 
 #[derive(serde::Deserialize, serde::Serialize)]
+#[serde(default)]
 pub struct RustyTaskboardApp {
     lists: Vec<ListWindow>,
     new_tasklist: String,
     show_settings: bool,
+    dark_mode: bool,
 }
 
 impl RustyTaskboardApp {
@@ -56,6 +58,7 @@ impl Default for RustyTaskboardApp {
             lists,
             new_tasklist: String::new(),
             show_settings: false,
+            dark_mode: false,
         }
     }
 }
@@ -67,6 +70,12 @@ impl eframe::App for RustyTaskboardApp {
     }
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        // Updating the apps color scheme depending on whether dark_mode is true or not
+        match self.dark_mode {
+            true => ctx.set_visuals(egui::Visuals::dark()),
+            false => ctx.set_visuals(egui::Visuals::light()),
+        }
+
         // Top panel for displaying the name of the app and what windows to show
         egui::TopBottomPanel::top("Sidebar").show(ctx, |ui| {
             ui.horizontal(|ui| {
@@ -257,6 +266,9 @@ impl eframe::App for RustyTaskboardApp {
             // Showing the settings window if it should be open
             if self.show_settings {
                 egui::Window::new("Settings").show(ctx, |ui| {
+                    ui.checkbox(&mut self.dark_mode, "Dark mode");
+
+                    ui.add_space(10.0);
                     ui.label("Zoom Factor");
                     let mut slider_value = ctx.pixels_per_point();
                     ui.add(egui::Slider::new(&mut slider_value, 1.0..=2.0));
