@@ -221,11 +221,6 @@ impl eframe::App for RustyTaskboardApp {
 
                     ui.collapsing("Options", |ui| {
                         ui.horizontal(|ui| {
-                            // Code to display the list_window name in the text edit box
-                            if list_window.new_list_name().is_empty() {
-                                list_window.set_new_list_name(list_window.list_name());
-                            }
-
                             ui.label("Name");
                             if ui
                                 .text_edit_singleline(list_window.mut_new_list_name())

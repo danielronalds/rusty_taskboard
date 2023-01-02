@@ -54,7 +54,9 @@ impl ListWindow {
         Self {
             show: true,
             new_task_description: String::new(),
-            new_list_name: String::new(),
+            // Setting the value of new_list_name to the list_name so that the textbox starts with
+            // the name in it
+            new_list_name: list.name.clone(),
             delete_mode: false,
             update_tasks: false,
             list,
