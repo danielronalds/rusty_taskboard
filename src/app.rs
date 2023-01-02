@@ -98,7 +98,7 @@ impl eframe::App for RustyTaskboardApp {
 
                     // Checking to make sure a list with the same name doesn't already exist
                     for list in &self.lists {
-                        if &list.list_name() == &self.new_tasklist {
+                        if list.list_name() == self.new_tasklist {
                             list_exists = true;
                         }
                     }

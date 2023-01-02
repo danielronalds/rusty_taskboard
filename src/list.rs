@@ -133,12 +133,7 @@ impl ListWindow {
     pub fn mut_new_list_name(&mut self) -> &mut String {
         &mut self.new_list_name
     }
-
-    /// Returns the list name
-    pub fn set_new_list_name(&mut self, new_name: String) {
-        self.new_list_name = new_name;
-    }
-
+    
     /// Returns a reference to self.list.tasks
     pub fn task_vec(&self) -> &Vec<Task> {
         &self.list.tasks
