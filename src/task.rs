@@ -14,10 +14,12 @@ pub struct EmptyDescription;
 
 /// Struct to represent a task
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize, Clone)]
+#[serde(default)]
 pub struct Task {
     new_description: String,
     description: String,
     completed: bool,
+    id: usize 
 }
 
 impl Task {
@@ -25,9 +27,8 @@ impl Task {
     ///
     /// Parameters
     /// description:   The task's description
-    /// status:        The task's status
-    /// list:          The list the task belongs to
-    pub fn new(description: String) -> Result<Task, EmptyDescription> {
+    /// id:            The task's id
+    pub fn new(description: String, id: usize) -> Result<Task, EmptyDescription> {
         // Return an error if the description is empty
         if description.is_empty() {
             return Err(EmptyDescription);
@@ -37,6 +38,7 @@ impl Task {
             new_description: String::new(),
             description,
             completed: false,
+            id,
         })
     }
 
@@ -86,6 +88,18 @@ impl Task {
     }
 }
 
+impl Default for Task {
+    // A default implementation for task
+    fn default() -> Self { 
+        Task {
+            new_description: String::new(),
+            description: "A default task!".to_owned(),
+            completed: false,
+            id: 0,
+        }
+    }
+}
+
 /// Unit tests
 mod tests {
     #![allow(unused_imports)]
@@ -98,7 +112,7 @@ mod tests {
     fn constructor_right_description() {
         let description = String::from("This is a simple task!");
 
-        let task = Task::new(description.clone()).unwrap();
+        let task = Task::new(description.clone(), 0).unwrap();
 
         assert_eq!(task.description(), description);
     }
@@ -108,7 +122,7 @@ mod tests {
     fn constructor_fails_on_empty_description() {
         let description = String::new();
 
-        let task_error = Task::new(description).unwrap_err();
+        let task_error = Task::new(description, 0).unwrap_err();
 
         assert_eq!(task_error, EmptyDescription)
     }
@@ -118,7 +132,7 @@ mod tests {
     fn update_description_works() {
         let description = String::from("This is the first description");
 
-        let mut task = Task::new(description).unwrap();
+        let mut task = Task::new(description, 0).unwrap();
 
         let new_description = String::from("The is the new description");
 
@@ -132,7 +146,7 @@ mod tests {
     fn update_description_fails_on_empty_description() {
         let description = String::from("This is the first description");
 
-        let mut task = Task::new(description).unwrap();
+        let mut task = Task::new(description, 0).unwrap();
 
         let new_description = String::new();
 

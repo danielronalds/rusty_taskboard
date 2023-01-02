@@ -40,16 +40,16 @@ impl Default for RustyTaskboardApp {
             ListWindow::new(List::new(
                 "Main".to_owned(),
                 vec![
-                    Task::new("A basic task".to_owned()).unwrap(),
-                    Task::new("Another basic task".to_owned()).unwrap(),
-                    Task::new("A basic task".to_owned()).unwrap(),
+                    Task::new("A basic task".to_owned(), 0).unwrap(),
+                    Task::new("Another basic task".to_owned(), 1).unwrap(),
+                    Task::new("A basic task".to_owned(), 2).unwrap(),
                 ],
             )),
             ListWindow::new(List::new(
                 "Second".to_owned(),
                 vec![
-                    Task::new("A basic task".to_owned()).unwrap(),
-                    Task::new("Another basic task".to_owned()).unwrap(),
+                    Task::new("A basic task".to_owned(), 0).unwrap(),
+                    Task::new("Another basic task".to_owned(), 1).unwrap(),
                 ],
             )),
         ];
@@ -159,7 +159,11 @@ impl eframe::App for RustyTaskboardApp {
                             .on_hover_text("Add a new task")
                             .lost_focus()
                         {
-                            if let Ok(task) = Task::new(list_window.new_task_description()) {
+                            // Getting the tasks id
+                            let id = list_window.task_vec().len();
+
+                            // Attempting to create the task
+                            if let Ok(task) = Task::new(list_window.new_task_description(), id) {
                                 list_window.add_task(task);
 
                                 // Resetting the textbox
