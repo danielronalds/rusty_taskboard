@@ -8,6 +8,9 @@ use crate::task::Task;
 // Const for the default pixels_per_point
 const DEFAULT_PIXELS_PER_POINT: f32 = 1.5;
 
+// Const for the width of the list windows
+const LIST_WINDOW_WIDTH: f32 = 250.0;
+
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(default)]
 pub struct RustyTaskboardApp {
@@ -143,7 +146,7 @@ impl eframe::App for RustyTaskboardApp {
                 // List's window
                 egui::Window::new(&list_window.list_name()).show(ctx, |ui| {
                     // Setting the width
-                    ui.set_width(200.0);
+                    ui.set_width(LIST_WINDOW_WIDTH);
 
                     list_window.animate_bar(ctx);
 

@@ -1,0 +1,12 @@
+description,status,list
+Fix issue #2,Completed,Main
+Fix issue #4,Completed,Main
+Check if the windows version works well,Completed,Main
+Fix issue #3,NotStarted,Main
+Fix issue #5,NotStarted,Main
+Add project boards,NotStarted,Main
+Look into reordering tasks?,NotStarted,Main
+Look into items being crossed out when ticked,NotStarted,Main
+Fix the width problem for the progress bar and text edit fields,NotStarted,Main
+Look into serializing into a specific file,NotStarted,Main
+...backkground images?,NotStarted,Main
