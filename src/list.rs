@@ -39,7 +39,7 @@ impl List {
 // Const for the width of the list windows
 pub const DEFAULT_LIST_WINDOW_WIDTH: f32 = 250.0;
 
-#[derive(Clone, serde::Deserialize, serde::Serialize)]
+#[derive(Default, Clone, serde::Deserialize, serde::Serialize)]
 /// A struct representing the a window to display of a List
 pub struct ListWindow {
     show: bool,
