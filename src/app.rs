@@ -2,19 +2,17 @@
 
 use eframe::egui;
 
-use crate::list::{List, ListWindow};
+use crate::list::{List, ListWindow, DEFAULT_LIST_WINDOW_WIDTH};
 use crate::task::Task;
 
 // Const for the default pixels_per_point
 const DEFAULT_PIXELS_PER_POINT: f32 = 1.5;
 
-// Const for the width of the list windows
-const LIST_WINDOW_WIDTH: f32 = 250.0;
-
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(default)]
 pub struct RustyTaskboardApp {
     lists: Vec<ListWindow>,
+    list_window_width: f32,
     new_tasklist: String,
     show_settings: bool,
     dark_mode: bool,
@@ -59,6 +57,7 @@ impl Default for RustyTaskboardApp {
 
         Self {
             lists,
+            list_window_width: DEFAULT_LIST_WINDOW_WIDTH,
             new_tasklist: String::new(),
             show_settings: false,
             dark_mode: false,
@@ -146,7 +145,7 @@ impl eframe::App for RustyTaskboardApp {
                 // List's window
                 egui::Window::new(&list_window.list_name()).show(ctx, |ui| {
                     // Setting the width
-                    ui.set_width(LIST_WINDOW_WIDTH);
+                    ui.set_width(self.list_window_width);
 
                     list_window.animate_bar(ctx);
 
@@ -275,6 +274,10 @@ impl eframe::App for RustyTaskboardApp {
                     let mut slider_value = ctx.pixels_per_point();
                     ui.add(egui::Slider::new(&mut slider_value, 1.0..=2.0));
                     ctx.set_pixels_per_point(slider_value);
+
+                    ui.add_space(10.0);
+                    ui.label("Window Width");
+                    ui.add(egui::Slider::new(&mut self.list_window_width, 100.0..=500.0));
 
                     ui.add_space(10.0);
                     ui.label(format!("Rusty Taskboards v{}", env!("CARGO_PKG_VERSION")))
