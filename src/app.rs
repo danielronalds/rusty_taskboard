@@ -143,7 +143,7 @@ impl eframe::App for RustyTaskboardApp {
                 }
 
                 // List's window
-                egui::Window::new(&list_window.list_name()).show(ctx, |ui| {
+                egui::Window::new(&list_window.list_name()).resizable(false).show(ctx, |ui| {
                     // Setting the width
                     ui.set_width(self.list_window_width);
 
@@ -266,7 +266,7 @@ impl eframe::App for RustyTaskboardApp {
 
             // Showing the settings window if it should be open
             if self.show_settings {
-                egui::Window::new("Settings").show(ctx, |ui| {
+                egui::Window::new("Settings").resizable(false).show(ctx, |ui| {
                     ui.checkbox(&mut self.dark_mode, "Dark mode");
 
                     ui.add_space(10.0);
