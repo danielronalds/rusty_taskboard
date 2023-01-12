@@ -10,14 +10,20 @@ pub struct List {
 impl List {
     /// Creates a new List struct
     ///
-    /// Parameters:
+    /// Parameters
     /// name:    The name of the list
     /// tasks:   The list of tasks in the list
+    ///
+    /// Returns
+    /// A new List struct
     pub fn new(name: String, tasks: Vec<Task>) -> Self {
         Self { name, tasks }
     }
 
     /// Calculates the progress of the list
+    ///
+    /// Returns
+    /// A f32 between 0.0 and 1.0 that represents the list's progress as a percentage
     pub fn progress(&self) -> f32 {
         // Calculating what the max completed_value would be
         let completed_value = self.tasks.len() as f32;
@@ -53,6 +59,12 @@ pub struct ListWindow {
 
 impl ListWindow {
     // Creates a new ListWindow struct
+    //
+    // Parameters
+    // list:   The list that the ListWindow uses
+    //
+    // Returns
+    // A new ListWindow Struct
     pub fn new(list: List) -> Self {
         Self {
             show: true,
@@ -87,7 +99,7 @@ impl ListWindow {
 
                 self.animate_bar(ctx);
 
-                ui.add(egui::ProgressBar::new(self.progress()).show_percentage());
+                ui.add(egui::ProgressBar::new(self.progress).show_percentage());
 
                 ui.add_space(10.0);
 
@@ -106,8 +118,8 @@ impl ListWindow {
                         if let Ok(task) = Task::new(self.new_task_description(), id) {
                             self.add_task(task);
 
-                            // Resetting the textbox
-                            self.reset_new_task_description();
+                            // Resetting the textbox by setting its value to a new String
+                            self.new_task_description = String::new();
                         }
                     }
                 });
@@ -124,12 +136,12 @@ impl ListWindow {
                 for i in 0..self.task_vec().len() {
                     ui.horizontal_wrapped(|ui| {
                         // Allows the user to delete a task, only if the mode is enabled
-                        if self.delete_mode() && ui.button("X").clicked() {
+                        if self.delete_mode && ui.button("X").clicked() {
                             task_to_be_deleted = Some(self.task_vec()[i].clone());
                         }
 
                         // Displaying the textbox for editing a task's description
-                        if self.update_tasks() {
+                        if self.update_tasks {
                             ui.text_edit_singleline(self.mut_task_vec()[i].mut_new_description());
                             return;
                         }
@@ -167,16 +179,16 @@ impl ListWindow {
                         if ui
                             .text_edit_singleline(self.mut_new_list_name())
                             .lost_focus()
-                            && !self.new_list_name().is_empty()
+                            && !self.new_list_name.is_empty()
                         {
                             self.set_list_name(self.new_list_name());
                         }
                     });
 
                     ui.add_space(10.0);
-                    ui.checkbox(self.mut_delete_mode(), "Remove tasks");
+                    ui.checkbox(&mut self.delete_mode, "Remove tasks");
                     ui.add_space(10.0);
-                    ui.checkbox(self.mut_update_tasks(), "Enable task editing");
+                    ui.checkbox(&mut self.update_tasks, "Enable task editing");
 
                     ui.add_space(10.0);
                     if ui.button("Delete completed tasks").clicked() {
@@ -209,67 +221,37 @@ impl ListWindow {
     }
 
     /// Sets the list name
-    pub fn set_list_name(&mut self, new_name: String) {
+    fn set_list_name(&mut self, new_name: String) {
         self.list.name = new_name;
     }
 
-    /// Returns self.delete_mode
-    pub fn delete_mode(&self) -> bool {
-        self.delete_mode
-    }
-
-    /// Returns a mutable reference to self.delete_mode
-    pub fn mut_delete_mode(&mut self) -> &mut bool {
-        &mut self.delete_mode
-    }
-
-    /// Returns self.update_tasks
-    pub fn update_tasks(&self) -> bool {
-        self.update_tasks
-    }
-
-    /// Returns a mutable reference to self.update_tasks
-    pub fn mut_update_tasks(&mut self) -> &mut bool {
-        &mut self.update_tasks
-    }
-
-    /// Returns the progress bar progress
-    pub fn progress(&self) -> f32 {
-        self.progress
-    }
-
     /// Returns a clone of the new_task_description field
-    pub fn new_task_description(&self) -> String {
+    fn new_task_description(&self) -> String {
         self.new_task_description.clone()
     }
 
     /// Returns a mutable reference to the new_task_description field
-    pub fn mut_new_task_description(&mut self) -> &mut String {
+    fn mut_new_task_description(&mut self) -> &mut String {
         &mut self.new_task_description
     }
 
-    /// Resets the new_task_description field to String::new()
-    pub fn reset_new_task_description(&mut self) {
-        self.new_task_description = String::new();
-    }
-
     /// Returns a clone of new_list_name
-    pub fn new_list_name(&self) -> String {
+    fn new_list_name(&self) -> String {
         self.new_list_name.clone()
     }
 
     /// Returns a mutable reference of new_list_name
-    pub fn mut_new_list_name(&mut self) -> &mut String {
+    fn mut_new_list_name(&mut self) -> &mut String {
         &mut self.new_list_name
     }
 
     /// Returns a reference to self.list.tasks
-    pub fn task_vec(&self) -> &Vec<Task> {
+    fn task_vec(&self) -> &Vec<Task> {
         &self.list.tasks
     }
 
     /// Returns a mutable reference to self.list.tasks
-    pub fn mut_task_vec(&mut self) -> &mut Vec<Task> {
+    fn mut_task_vec(&mut self) -> &mut Vec<Task> {
         &mut self.list.tasks
     }
 
@@ -283,7 +265,7 @@ impl ListWindow {
     /// Parameters
     /// ctx:   The GUI context... I don't super love that this is apart of the method however the
     /// refactor can come later
-    pub fn animate_bar(&mut self, ctx: &egui::Context) {
+    fn animate_bar(&mut self, ctx: &egui::Context) {
         // Progress bar to show how much of the list is done
         // If the progress is within a certain range, just set it to exactly the
         // progress
@@ -304,17 +286,17 @@ impl ListWindow {
     }
 
     /// Adds a task to the list
-    pub fn add_task(&mut self, task: Task) {
+    fn add_task(&mut self, task: Task) {
         self.list.tasks.push(task);
     }
 
     /// Deletes a task from the list
-    pub fn delete_task(&mut self, task_to_delete: Task) {
+    fn delete_task(&mut self, task_to_delete: Task) {
         self.list.tasks.retain(|task| task != &task_to_delete);
     }
 
     /// Deletes completed tasks from the list
-    pub fn delete_completed_tasks(&mut self) {
+    fn delete_completed_tasks(&mut self) {
         self.list.tasks.retain(|task| !task.completed());
     }
 }
