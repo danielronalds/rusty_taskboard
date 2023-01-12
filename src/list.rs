@@ -67,6 +67,132 @@ impl ListWindow {
         }
     }
 
+    /// Displays the list window, and returns whether it should be deleted or not
+    ///
+    /// Parameters
+    /// ctx:                 EGUI Context
+    /// list_window_width:   The width to display the window with
+    ///
+    /// Returns
+    /// None if the list shouldn't be deleted, and a clone of self wrapped in Some() if this list
+    /// should be deleted
+    pub fn display(&mut self, ctx: &egui::Context, list_window_width: f32) -> Option<Self> {
+        let mut list_to_delete = None;
+
+        egui::Window::new(self.list_name())
+            .resizable(false)
+            .show(ctx, |ui| {
+                // Setting the width
+                ui.set_width(list_window_width);
+
+                self.animate_bar(ctx);
+
+                ui.add(egui::ProgressBar::new(self.progress()).show_percentage());
+
+                ui.add_space(10.0);
+
+                ui.horizontal(|ui| {
+                    ui.label("Add ");
+                    // Way of adding more tasks to the list
+                    if ui
+                        .text_edit_singleline(self.mut_new_task_description())
+                        .on_hover_text("Add a new task")
+                        .lost_focus()
+                    {
+                        // Getting the tasks id
+                        let id = self.task_vec().len();
+
+                        // Attempting to create the task
+                        if let Ok(task) = Task::new(self.new_task_description(), id) {
+                            self.add_task(task);
+
+                            // Resetting the textbox
+                            self.reset_new_task_description();
+                        }
+                    }
+                });
+
+                ui.add_space(10.0);
+
+                let mut task_to_be_deleted = None;
+
+                // Displaying the current tasks
+                //
+                // The for loop with a range is used so that an immutable borrow can be used in
+                // the closure along side the mutable borrow used to change the status of a
+                // task
+                for i in 0..self.task_vec().len() {
+                    ui.horizontal_wrapped(|ui| {
+                        // Allows the user to delete a task, only if the mode is enabled
+                        if self.delete_mode() && ui.button("X").clicked() {
+                            task_to_be_deleted = Some(self.task_vec()[i].clone());
+                        }
+
+                        // Displaying the textbox for editing a task's description
+                        if self.update_tasks() {
+                            ui.text_edit_singleline(self.mut_task_vec()[i].mut_new_description());
+                            return;
+                        }
+
+                        // If update_task is false, then the user must be finished editing
+                        // tasks. If new_description is empty, set it to the current
+                        // description, else set it as the new description
+                        if self.task_vec()[i].new_description().is_empty() {
+                            let new_description = self.task_vec()[i].description();
+                            self.mut_task_vec()[i].set_new_description(new_description);
+                        } else {
+                            let new_description = self.task_vec()[i].new_description();
+                            self.mut_task_vec()[i]
+                                .update_description(new_description)
+                                .unwrap_or(());
+                        }
+
+                        // Little work around the borrow checker
+                        let mut value = self.task_vec()[i].completed();
+                        ui.checkbox(&mut value, self.task_vec()[i].description());
+                        self.mut_task_vec()[i].set_completed(value);
+                    });
+                }
+
+                // Currently the problem with this is that it doesnt only delete the one task
+                if let Some(task_to_delete) = task_to_be_deleted {
+                    self.delete_task(task_to_delete);
+                }
+
+                ui.add_space(10.0);
+
+                ui.collapsing("Options", |ui| {
+                    ui.horizontal(|ui| {
+                        ui.label("Name");
+                        if ui
+                            .text_edit_singleline(self.mut_new_list_name())
+                            .lost_focus()
+                            && !self.new_list_name().is_empty()
+                        {
+                            self.set_list_name(self.new_list_name());
+                        }
+                    });
+
+                    ui.add_space(10.0);
+                    ui.checkbox(self.mut_delete_mode(), "Remove tasks");
+                    ui.add_space(10.0);
+                    ui.checkbox(self.mut_update_tasks(), "Enable task editing");
+
+                    ui.add_space(10.0);
+                    if ui.button("Delete completed tasks").clicked() {
+                        self.delete_completed_tasks();
+                    }
+
+                    ui.add_space(10.0);
+                    if ui.button("Delete list").clicked() {
+                        list_to_delete = Some(self.clone());
+                    }
+                });
+            });
+
+        list_to_delete
+    }
+
     /// Returns whether to show the ListWindow or not
     pub fn show(&self) -> bool {
         self.show
@@ -136,7 +262,7 @@ impl ListWindow {
     pub fn mut_new_list_name(&mut self) -> &mut String {
         &mut self.new_list_name
     }
-    
+
     /// Returns a reference to self.list.tasks
     pub fn task_vec(&self) -> &Vec<Task> {
         &self.list.tasks
