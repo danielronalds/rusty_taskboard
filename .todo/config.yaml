@@ -7,3 +7,4 @@ smart_list_names: true
 current_list: Main
 lists:
 - Main
+- Features

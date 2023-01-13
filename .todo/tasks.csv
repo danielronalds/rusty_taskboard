@@ -1,9 +1,10 @@
 description,status,list
 Fix issue #3,NotStarted,Main
 Fix issue #5,NotStarted,Main
-Add project boards,NotStarted,Main
 Look into reordering tasks?,NotStarted,Main
-Look into items being crossed out when ticked,NotStarted,Main
 Look into serializing into a specific file,NotStarted,Main
 ..background images,NotStarted,Main
-Make the list windows able to be colured by the user,NotStarted,Main
+"Project boards, allowing lists to be grouped under one topic. Maybe topics is a better feature?",NotStarted,Features
+"Sticky textfields for entering tasks, to make entry of many tasks *blazingly fast*",NotStarted,Features
+Look into items being crossed out when ticked,NotStarted,Features
+Coloured listboxes?,NotStarted,Features

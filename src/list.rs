@@ -107,7 +107,7 @@ impl ListWindow {
                     ui.label("Add ");
                     // Way of adding more tasks to the list
                     if ui
-                        .text_edit_singleline(self.mut_new_task_description())
+                        .text_edit_singleline(&mut self.new_task_description)
                         .on_hover_text("Add a new task")
                         .lost_focus()
                     {
@@ -115,8 +115,9 @@ impl ListWindow {
                         let id = self.task_vec().len();
 
                         // Attempting to create the task
-                        if let Ok(task) = Task::new(self.new_task_description(), id) {
-                            self.add_task(task);
+                        if let Ok(task) = Task::new(self.new_task_description.clone(), id) {
+                            // Adding the created task
+                            self.list.tasks.push(task);
 
                             // Resetting the textbox by setting its value to a new String
                             self.new_task_description = String::new();
@@ -168,7 +169,8 @@ impl ListWindow {
 
                 // Currently the problem with this is that it doesnt only delete the one task
                 if let Some(task_to_delete) = task_to_be_deleted {
-                    self.delete_task(task_to_delete);
+                    // Deleting the task
+                    self.list.tasks.retain(|task| task != &task_to_delete);
                 }
 
                 ui.add_space(10.0);
@@ -177,11 +179,11 @@ impl ListWindow {
                     ui.horizontal(|ui| {
                         ui.label("Name");
                         if ui
-                            .text_edit_singleline(self.mut_new_list_name())
+                            .text_edit_singleline(&mut self.new_list_name)
                             .lost_focus()
                             && !self.new_list_name.is_empty()
                         {
-                            self.set_list_name(self.new_list_name());
+                            self.list.name = self.new_list_name.clone();
                         }
                     });
 
@@ -192,7 +194,8 @@ impl ListWindow {
 
                     ui.add_space(10.0);
                     if ui.button("Delete completed tasks").clicked() {
-                        self.delete_completed_tasks();
+                        // Deleting completed tasks
+                        self.list.tasks.retain(|task| !task.completed());
                     }
 
                     ui.add_space(10.0);
@@ -220,37 +223,16 @@ impl ListWindow {
         self.list.name.clone()
     }
 
-    /// Sets the list name
-    fn set_list_name(&mut self, new_name: String) {
-        self.list.name = new_name;
-    }
-
-    /// Returns a clone of the new_task_description field
-    fn new_task_description(&self) -> String {
-        self.new_task_description.clone()
-    }
-
-    /// Returns a mutable reference to the new_task_description field
-    fn mut_new_task_description(&mut self) -> &mut String {
-        &mut self.new_task_description
-    }
-
-    /// Returns a clone of new_list_name
-    fn new_list_name(&self) -> String {
-        self.new_list_name.clone()
-    }
-
-    /// Returns a mutable reference of new_list_name
-    fn mut_new_list_name(&mut self) -> &mut String {
-        &mut self.new_list_name
-    }
-
-    /// Returns a reference to self.list.tasks
+    /// Returns a reference to self.list.tasks 
+    ///
+    /// Keeping this one as it cleans up the code pretty nicely
     fn task_vec(&self) -> &Vec<Task> {
         &self.list.tasks
     }
 
     /// Returns a mutable reference to self.list.tasks
+    ///
+    /// Also keeping this for the same reason
     fn mut_task_vec(&mut self) -> &mut Vec<Task> {
         &mut self.list.tasks
     }
@@ -283,21 +265,6 @@ impl ListWindow {
             // Requesting a repaint so that the animation is smooth
             ctx.request_repaint();
         }
-    }
-
-    /// Adds a task to the list
-    fn add_task(&mut self, task: Task) {
-        self.list.tasks.push(task);
-    }
-
-    /// Deletes a task from the list
-    fn delete_task(&mut self, task_to_delete: Task) {
-        self.list.tasks.retain(|task| task != &task_to_delete);
-    }
-
-    /// Deletes completed tasks from the list
-    fn delete_completed_tasks(&mut self) {
-        self.list.tasks.retain(|task| !task.completed());
     }
 }
 
