@@ -238,7 +238,7 @@ impl ListWindow {
 
     /// Returns a clone of the id
     pub fn id(&self) -> Id {
-        self.id.clone()
+        self.id
     }
 
     /// Returns a reference to self.list.tasks 

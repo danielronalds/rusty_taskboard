@@ -1,11 +1,11 @@
 description,status,list
+"Project boards, allowing lists to be grouped under one topic. Maybe topics is a better feature?",NotStarted,Features
+"Sticky textfields for entering tasks, to make entry of many tasks *blazingly fast*",NotStarted,Features
+Look into items being crossed out when ticked,NotStarted,Features
+Look into changing the colour of the progress bar to colour code the lists... to make Jess happy,NotStarted,Features
 "#5 Currently when renaming a list, the window respawns in a different spot... Something to do with the egui library",Completed,Issues
 "#7 Currently the user can rename a list to have the same name as another list, which leads to a weird merge thing",NotStarted,Issues
 "#8 Currently there is no way the user knows when an action fails, such as renaming a list or creating a list",NotStarted,Issues
 Look into reordering tasks?,NotStarted,Main
 Look into serializing into a specific file,NotStarted,Main
 ..background images,NotStarted,Main
-"Project boards, allowing lists to be grouped under one topic. Maybe topics is a better feature?",NotStarted,Features
-"Sticky textfields for entering tasks, to make entry of many tasks *blazingly fast*",NotStarted,Features
-Look into items being crossed out when ticked,NotStarted,Features
-Coloured listboxes?,NotStarted,Features
