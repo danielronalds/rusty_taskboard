@@ -37,23 +37,7 @@ impl RustyTaskboardApp {
 
 impl Default for RustyTaskboardApp {
     fn default() -> Self {
-        let lists: Vec<ListWindow> = vec![
-            ListWindow::new(List::new(
-                "Main".to_owned(),
-                vec![
-                    Task::new("A basic task".to_owned(), 0).unwrap(),
-                    Task::new("Another basic task".to_owned(), 1).unwrap(),
-                    Task::new("A basic task".to_owned(), 2).unwrap(),
-                ],
-            )),
-            ListWindow::new(List::new(
-                "Second".to_owned(),
-                vec![
-                    Task::new("A basic task".to_owned(), 0).unwrap(),
-                    Task::new("Another basic task".to_owned(), 1).unwrap(),
-                ],
-            )),
-        ];
+        let lists: Vec<ListWindow> = Vec::new();
 
         Self {
             lists,
