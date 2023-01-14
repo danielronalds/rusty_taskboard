@@ -1,6 +1,7 @@
 description,status,list
-Fix issue #3,NotStarted,Main
-Fix issue #5,NotStarted,Main
+"#5 Currently when renaming a list, the window respawns in a different spot... Something to do with the egui library",Completed,Issues
+"#7 Currently the user can rename a list to have the same name as another list, which leads to a weird merge thing",NotStarted,Issues
+"#8 Currently there is no way the user knows when an action fails, such as renaming a list or creating a list",NotStarted,Issues
 Look into reordering tasks?,NotStarted,Main
 Look into serializing into a specific file,NotStarted,Main
 ..background images,NotStarted,Main

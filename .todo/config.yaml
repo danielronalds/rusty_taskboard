@@ -4,7 +4,8 @@ command_feedback: true
 smart_task_ids: true
 num_of_tasks: 4
 smart_list_names: true
-current_list: Main
+current_list: Issues
 lists:
 - Main
 - Features
+- Issues

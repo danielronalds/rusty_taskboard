@@ -1,5 +1,9 @@
 use crate::task::Task;
 
+// For generating random ids
+use rand::Rng;
+use egui::Id;
+
 /// A struct representing a list of tasks, with a name
 #[derive(Default, Clone, serde::Deserialize, serde::Serialize, PartialEq, Eq)]
 pub struct List {
@@ -45,15 +49,22 @@ impl List {
 // Const for the width of the list windows
 pub const DEFAULT_LIST_WINDOW_WIDTH: f32 = 250.0;
 
-#[derive(Default, Clone, serde::Deserialize, serde::Serialize)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 /// A struct representing the a window to display of a List
 pub struct ListWindow {
+    id: Id,
     show: bool,
     new_task_description: String,
     new_list_name: String,
     edit_mode: bool,
     list: List,
     progress: f32,
+}
+
+impl Default for ListWindow {
+    fn default() -> Self {
+        Self::new(List::default())
+    }
 }
 
 impl ListWindow {
@@ -65,9 +76,13 @@ impl ListWindow {
     // Returns
     // A new ListWindow Struct
     pub fn new(list: List) -> Self {
+        // Generating the id of this window
+        let id = Id::new(rand::thread_rng().gen_range(0..u64::MAX));
+
         Self {
             show: true,
             new_task_description: String::new(),
+            id,
             // Setting the value of new_list_name to the list_name so that the textbox starts with
             // the name in it
             new_list_name: list.name.clone(),
@@ -91,6 +106,7 @@ impl ListWindow {
 
         egui::Window::new(self.list_name())
             .resizable(false)
+            .id(self.id)
             .show(ctx, |ui| {
                 // Setting the width
                 ui.set_width(list_window_width);
@@ -218,6 +234,11 @@ impl ListWindow {
     /// Returns the list name
     pub fn list_name(&self) -> String {
         self.list.name.clone()
+    }
+
+    /// Returns a clone of the id
+    pub fn id(&self) -> Id {
+        self.id.clone()
     }
 
     /// Returns a reference to self.list.tasks 

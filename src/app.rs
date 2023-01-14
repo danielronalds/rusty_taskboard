@@ -151,6 +151,7 @@ impl eframe::App for RustyTaskboardApp {
                 self.lists.retain(|list| {
                     list.task_vec_clone() != list_to_delete.task_vec_clone()
                         && list.list_name() != list_to_delete.list_name()
+                        && list.id() != list_to_delete.id()
                 });
             }
 
