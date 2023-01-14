@@ -51,8 +51,7 @@ pub struct ListWindow {
     show: bool,
     new_task_description: String,
     new_list_name: String,
-    delete_mode: bool,
-    update_tasks: bool,
+    edit_mode: bool,
     list: List,
     progress: f32,
 }
@@ -72,8 +71,7 @@ impl ListWindow {
             // Setting the value of new_list_name to the list_name so that the textbox starts with
             // the name in it
             new_list_name: list.name.clone(),
-            delete_mode: false,
-            update_tasks: false,
+            edit_mode: false,
             list,
             progress: 0.0,
         }
@@ -136,13 +134,14 @@ impl ListWindow {
                 // task
                 for i in 0..self.task_vec().len() {
                     ui.horizontal_wrapped(|ui| {
-                        // Allows the user to delete a task, only if the mode is enabled
-                        if self.delete_mode && ui.button("X").clicked() {
+                        // Displaying the delete button if edit mode is enabled
+                        if self.edit_mode && ui.button("X").clicked() {
                             task_to_be_deleted = Some(self.task_vec()[i].clone());
                         }
 
-                        // Displaying the textbox for editing a task's description
-                        if self.update_tasks {
+                        // Displaying the textbox for editing a task's description if edit_mode is
+                        // enabled
+                        if self.edit_mode {
                             ui.text_edit_singleline(self.mut_task_vec()[i].mut_new_description());
                             return;
                         }
@@ -188,9 +187,7 @@ impl ListWindow {
                     });
 
                     ui.add_space(10.0);
-                    ui.checkbox(&mut self.delete_mode, "Remove tasks");
-                    ui.add_space(10.0);
-                    ui.checkbox(&mut self.update_tasks, "Enable task editing");
+                    ui.checkbox(&mut self.edit_mode, "Edit mode");
 
                     ui.add_space(10.0);
                     if ui.button("Delete completed tasks").clicked() {
