@@ -1,8 +1,8 @@
 use crate::task::Task;
 
 // For generating random ids
-use rand::Rng;
 use egui::Id;
+use rand::Rng;
 
 /// A struct representing a list of tasks, with a name
 #[derive(Default, Clone, serde::Deserialize, serde::Serialize, PartialEq, Eq)]
@@ -97,11 +97,17 @@ impl ListWindow {
     /// Parameters
     /// ctx:                 EGUI Context
     /// list_window_width:   The width to display the window with
+    /// show_progress_bar:   Whether to show the progress bar at the top or not
     ///
     /// Returns
     /// None if the list shouldn't be deleted, and a clone of self wrapped in Some() if this list
     /// should be deleted
-    pub fn display(&mut self, ctx: &egui::Context, list_window_width: f32) -> Option<Self> {
+    pub fn display(
+        &mut self,
+        ctx: &egui::Context,
+        list_window_width: f32,
+        show_progress_bar: bool,
+    ) -> Option<Self> {
         let mut list_to_delete = None;
 
         egui::Window::new(self.list_name())
@@ -113,9 +119,11 @@ impl ListWindow {
 
                 self.animate_bar(ctx);
 
-                ui.add(egui::ProgressBar::new(self.progress).show_percentage());
+                if show_progress_bar {
+                    ui.add(egui::ProgressBar::new(self.progress).show_percentage());
 
-                ui.add_space(10.0);
+                    ui.add_space(10.0);
+                }
 
                 ui.horizontal(|ui| {
                     ui.label("Add ");
@@ -241,7 +249,7 @@ impl ListWindow {
         self.id
     }
 
-    /// Returns a reference to self.list.tasks 
+    /// Returns a reference to self.list.tasks
     ///
     /// Keeping this one as it cleans up the code pretty nicely
     fn task_vec(&self) -> &Vec<Task> {

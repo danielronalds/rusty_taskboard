@@ -14,6 +14,7 @@ pub struct RustyTaskboardApp {
     list_window_width: f32,
     new_tasklist: String,
     show_settings: bool,
+    show_progress_bars: bool,
     dark_mode: bool,
 }
 
@@ -43,6 +44,7 @@ impl Default for RustyTaskboardApp {
             list_window_width: DEFAULT_LIST_WINDOW_WIDTH,
             new_tasklist: String::new(),
             show_settings: false,
+            show_progress_bars: true,
             dark_mode: false,
         }
     }
@@ -126,7 +128,8 @@ impl eframe::App for RustyTaskboardApp {
                 }
 
                 // Displaying the list window
-                list_to_delete = list_window.display(ctx, self.list_window_width);
+                list_to_delete =
+                    list_window.display(ctx, self.list_window_width, self.show_progress_bars);
             }
 
             // Deleting the list if it
@@ -140,22 +143,30 @@ impl eframe::App for RustyTaskboardApp {
 
             // Showing the settings window if it should be open
             if self.show_settings {
-                egui::Window::new("Settings").resizable(false).show(ctx, |ui| {
-                    ui.checkbox(&mut self.dark_mode, "Dark mode");
+                egui::Window::new("Settings")
+                    .resizable(false)
+                    .show(ctx, |ui| {
+                        ui.checkbox(&mut self.dark_mode, "Dark mode");
 
-                    ui.add_space(10.0);
-                    ui.label("Zoom Factor");
-                    let mut slider_value = ctx.pixels_per_point();
-                    ui.add(egui::Slider::new(&mut slider_value, 1.0..=2.0));
-                    ctx.set_pixels_per_point(slider_value);
+                        ui.add_space(10.0);
+                        ui.checkbox(&mut self.show_progress_bars, "Show progress bars");
 
-                    ui.add_space(10.0);
-                    ui.label("Window Width");
-                    ui.add(egui::Slider::new(&mut self.list_window_width, 100.0..=500.0));
+                        ui.add_space(10.0);
+                        ui.label("Zoom Factor");
+                        let mut slider_value = ctx.pixels_per_point();
+                        ui.add(egui::Slider::new(&mut slider_value, 1.0..=2.0));
+                        ctx.set_pixels_per_point(slider_value);
 
-                    ui.add_space(10.0);
-                    ui.label(format!("Rusty Taskboards v{}", env!("CARGO_PKG_VERSION")))
-                });
+                        ui.add_space(10.0);
+                        ui.label("Window Width");
+                        ui.add(egui::Slider::new(
+                            &mut self.list_window_width,
+                            100.0..=500.0,
+                        ));
+
+                        ui.add_space(10.0);
+                        ui.label(format!("Rusty Taskboards v{}", env!("CARGO_PKG_VERSION")))
+                    });
             }
         });
     }
