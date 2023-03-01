@@ -3,7 +3,6 @@
 use eframe::egui;
 
 use crate::list::{List, ListWindow, DEFAULT_LIST_WINDOW_WIDTH};
-use crate::task::Task;
 
 // Const for the default pixels_per_point
 const DEFAULT_PIXELS_PER_POINT: f32 = 1.5;

@@ -151,7 +151,7 @@ mod tests {
         let new_description = String::new();
 
         let err = task
-            .update_description(new_description.clone())
+            .update_description(new_description)
             .unwrap_err();
 
         assert_eq!(err, EmptyDescription)
