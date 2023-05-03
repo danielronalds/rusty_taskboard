@@ -216,7 +216,7 @@ impl ListWindow {
                     ui.add_space(10.0);
                     if ui.button("Delete completed tasks").clicked() {
                         // Deleting completed tasks
-                        self.list.tasks.retain(|task| !task.completed());
+                        self.delete_completed_tasks();
                     }
 
                     ui.add_space(10.0);
@@ -227,6 +227,10 @@ impl ListWindow {
             });
 
         list_to_delete
+    }
+
+    pub fn delete_completed_tasks(&mut self) {
+        self.list.tasks.retain(|task| !task.completed());
     }
 
     /// Returns whether to show the ListWindow or not

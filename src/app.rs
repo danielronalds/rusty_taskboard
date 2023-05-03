@@ -101,6 +101,13 @@ impl eframe::App for RustyTaskboardApp {
                         self.new_tasklist = String::new();
                     }
                 }
+                ui.separator();
+
+                if ui.button("Cleanup completed tasks").clicked() {
+                    for list in &mut self.lists {
+                        list.delete_completed_tasks();
+                    }
+                }
 
                 ui.separator();
 
