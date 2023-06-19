@@ -2,6 +2,7 @@
 use eframe::egui;
 
 mod list;
+use list::ListWindow;
 
 use crate::task::{List, Task};
 
@@ -11,7 +12,7 @@ const DEFAULT_PIXELS_PER_POINT: f32 = 1.5;
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(default)]
 pub struct RustyTaskboardApp {
-    list: List,
+    list_window: ListWindow,
 }
 
 impl RustyTaskboardApp {
@@ -54,7 +55,12 @@ impl Default for RustyTaskboardApp {
         for task in tasks {
             list.add(task);
         }
-        Self { list }
+        let list_window = ListWindow::builder()
+            .name("Tasklist".to_string())
+            .list(list)
+            .build()
+            .unwrap();
+        Self { list_window }
     }
 }
 
@@ -66,7 +72,7 @@ impl eframe::App for RustyTaskboardApp {
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            self.list = list::draw_list(&ctx, self.list.clone());
+            self.list_window = list::draw_list(&ctx, self.list_window.clone());
         });
     }
 }
