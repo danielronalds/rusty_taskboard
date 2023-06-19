@@ -73,6 +73,8 @@ pub fn draw_list(ctx: &Context, list: ListWindow) -> ListWindow {
                 .clone() // The clone is needed here due to the closure
                 .into_iter()
                 .map(|task| draw_task(ui, list_window.editing, task))
+                .filter(|task| task.is_some())
+                .map(|task| task.expect("These should all be some"))
                 .collect();
         });
     list_window
@@ -143,14 +145,16 @@ const TASK_BORDER_WIDTH: f32 = 1.0;
 ///
 /// # Arguments
 ///
-/// * `ui`   - The UI to draw the task UI widget onto
-/// * `task` - The task for the widget to display
+/// * `ui`      - The UI to draw the task UI widget onto
+/// * `editing` - Whether the list window is in editing mode
+/// * `task`    - The task for the widget to display
 ///
 /// # Returns
 ///
-/// The result of the user interacting with the widget, aka whether the task has been completed
-fn draw_task(ui: &mut Ui, editing: bool, task: Task) -> Task {
+/// An option containg either the task with modifications, or None if the task has been deleted
+fn draw_task(ui: &mut Ui, editing: bool, task: Task) -> Option<Task> {
     let mut task = task;
+    let mut delete_task = false;
 
     Frame::none()
         .fill(Color32::LIGHT_GRAY)
@@ -166,7 +170,21 @@ fn draw_task(ui: &mut Ui, editing: bool, task: Task) -> Task {
                     ui.set_width(WINDOW_WIDTH);
 
                     if editing {
-                        task.set_title(textfield(ui, task.title()));
+                        ui.horizontal(|ui| {
+                            // Having a border frame here so that the button lines up with the text
+                            // edit field
+                            Frame::none()
+                                .fill(Color32::LIGHT_GRAY)
+                                .outer_margin(Margin::symmetric(0.0, TASK_OUTER_MARGIN))
+                                .inner_margin(Margin::same(TASK_BORDER_WIDTH))
+                                .rounding(Rounding::same(TASK_ROUNDING - 2.0))
+                                .show(ui, |ui| {
+                                    if ui.button("X").clicked() {
+                                        delete_task = true;
+                                    }
+                                });
+                            task.set_title(textfield(ui, task.title()));
+                        });
                     } else {
                         let title = task.title();
                         ui.checkbox(task.mut_completed(), title);
@@ -179,7 +197,10 @@ fn draw_task(ui: &mut Ui, editing: bool, task: Task) -> Task {
                 });
         });
 
-    task
+    match delete_task {
+        false => Some(task),
+        true => None,
+    }
 }
 
 fn textfield(ui: &mut Ui, contents: String) -> String {
