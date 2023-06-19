@@ -16,6 +16,7 @@ eframe = { version = "0.20.0", default-features = false, features = [
     "glow",          # Use the glow rendering backend. Alternative: "wgpu".
     "persistence",   # Enable restoring app state when restarting the app.
 ] }
+derive_builder = "0.12.0"
 
 # native:
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]

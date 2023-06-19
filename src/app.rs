@@ -1,13 +1,18 @@
 //! This file contains the front end app built using eframe and egui
-
 use eframe::egui;
+
+mod list;
+
+use crate::task::{List, Task};
 
 /// Constant for the default pixels_per_point
 const DEFAULT_PIXELS_PER_POINT: f32 = 1.5;
 
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(default)]
-pub struct RustyTaskboardApp {}
+pub struct RustyTaskboardApp {
+    list: List,
+}
 
 impl RustyTaskboardApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
@@ -28,7 +33,28 @@ impl RustyTaskboardApp {
 
 impl Default for RustyTaskboardApp {
     fn default() -> Self {
-        Self {}
+        let tasks = vec![
+            Task::builder()
+                .title("Task One".to_string())
+                .description("This is the first task".to_string())
+                .build()
+                .unwrap(),
+            Task::builder()
+                .title("Task Two".to_string())
+                .description("This is the second task, and still with a description".to_string())
+                .build()
+                .unwrap(),
+            Task::builder()
+                .title("Task Three".to_owned())
+                .completed(true)
+                .build()
+                .unwrap(),
+        ];
+        let mut list = List::new();
+        for task in tasks {
+            list.add(task);
+        }
+        Self { list }
     }
 }
 
@@ -40,7 +66,7 @@ impl eframe::App for RustyTaskboardApp {
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.label("Hello World!");
+            self.list = list::draw_list(&ctx, self.list.clone());
         });
     }
 }
