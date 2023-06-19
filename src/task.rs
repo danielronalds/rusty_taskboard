@@ -1,15 +1,20 @@
 #[derive(Clone, serde::Deserialize, serde::Serialize)]
-pub struct List {
-    pub tasks: Vec<Task>,
-}
+pub struct List(Vec<Task>);
 
 impl List {
     pub fn new() -> Self {
-        Self { tasks: vec![] }
+        Self { 0: vec![] }
     }
 
     pub fn add(&mut self, task: Task) {
-        self.tasks.push(task);
+        self.0.push(task);
+    }
+
+    /// The progress of the list as a percentage
+    pub fn progress(&self) -> f32 {
+        let completed_value = self.0.len() as f32;
+        let completed_tasks = self.0.iter().filter(|x| x.completed).count() as f32;
+        completed_tasks / completed_value
     }
 }
 
@@ -18,7 +23,7 @@ impl IntoIterator for List {
     type IntoIter = std::vec::IntoIter<Self::Item>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.tasks.into_iter()
+        self.0.into_iter()
     }
 }
 
