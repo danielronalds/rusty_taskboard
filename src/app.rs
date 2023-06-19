@@ -72,7 +72,7 @@ impl eframe::App for RustyTaskboardApp {
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            self.list_window = list::draw_list(&ctx, self.list_window.clone());
+            self.list_window = list::draw_list_window(&ctx, self.list_window.clone());
         });
     }
 }

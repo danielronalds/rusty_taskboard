@@ -28,12 +28,12 @@ impl ListWindow {
 /// # Arguments
 ///
 /// * `ctx`  - The egui handle
-/// * `list` - The list to draw
+/// * `list` - The list window to draw
 ///
 /// # Returns
 ///
 /// The list with any modifications that has happened
-pub fn draw_list(ctx: &Context, list: ListWindow) -> ListWindow {
+pub fn draw_list_window(ctx: &Context, list: ListWindow) -> ListWindow {
     let mut list_window = list;
     egui::Window::new(&list_window.name)
         .resizable(false)
@@ -74,7 +74,7 @@ pub fn draw_list(ctx: &Context, list: ListWindow) -> ListWindow {
                 .into_iter()
                 .map(|task| draw_task(ui, list_window.editing, task))
                 .filter(|task| task.is_some())
-                .map(|task| task.expect("These should all be some"))
+                .map(|task| task.expect("These should all be Some()"))
                 .collect();
         });
     list_window
@@ -185,14 +185,16 @@ fn draw_task(ui: &mut Ui, editing: bool, task: Task) -> Option<Task> {
                                 });
                             task.set_title(textfield(ui, task.title()));
                         });
+
+                        task.set_description(textfield(ui, task.description()));
                     } else {
                         let title = task.title();
                         ui.checkbox(task.mut_completed(), title);
-                    }
 
-                    let description = task.description();
-                    if !description.is_empty() {
-                        ui.label(description);
+                        let description = task.description();
+                        if !description.is_empty() {
+                            ui.label(description);
+                        }
                     }
                 });
         });

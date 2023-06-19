@@ -72,6 +72,10 @@ impl Task {
     pub fn description(&self) -> String {
         self.description.clone()
     }
+
+    pub fn set_description(&mut self, description: String) {
+        self.description = description;
+    }
 }
 
 #[cfg(test)]
