@@ -64,6 +64,10 @@ impl Task {
         self.title.clone()
     }
 
+    pub fn set_title(&mut self, title: String) {
+        self.title = title;
+    }
+
     /// A clone of the tasks description
     pub fn description(&self) -> String {
         self.description.clone()

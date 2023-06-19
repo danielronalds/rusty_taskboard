@@ -13,6 +13,8 @@ pub struct ListWindow {
     list: List,
     #[builder(default = "String::new()")]
     task_to_add: String,
+    #[builder(default = "false")]
+    editing: bool,
 }
 
 impl ListWindow {
@@ -60,6 +62,9 @@ pub fn draw_list(ctx: &Context, list: ListWindow) -> ListWindow {
                                     }
                                 }
                             }
+                            ui.collapsing("Options", |ui| {
+                                ui.checkbox(&mut list_window.editing, "Editing");
+                            })
                         });
                 });
 
@@ -67,7 +72,7 @@ pub fn draw_list(ctx: &Context, list: ListWindow) -> ListWindow {
                 .list
                 .clone() // The clone is needed here due to the closure
                 .into_iter()
-                .map(|task| draw_task(ui, task))
+                .map(|task| draw_task(ui, list_window.editing, task))
                 .collect();
         });
     list_window
@@ -144,7 +149,7 @@ const TASK_BORDER_WIDTH: f32 = 1.0;
 /// # Returns
 ///
 /// The result of the user interacting with the widget, aka whether the task has been completed
-fn draw_task(ui: &mut Ui, task: Task) -> Task {
+fn draw_task(ui: &mut Ui, editing: bool, task: Task) -> Task {
     let mut task = task;
 
     Frame::none()
@@ -159,8 +164,14 @@ fn draw_task(ui: &mut Ui, task: Task) -> Task {
                 .fill(Color32::WHITE)
                 .show(ui, |ui| {
                     ui.set_width(WINDOW_WIDTH);
-                    let title = task.title();
-                    ui.checkbox(task.mut_completed(), title);
+
+                    if editing {
+                        task.set_title(textfield(ui, task.title()));
+                    } else {
+                        let title = task.title();
+                        ui.checkbox(task.mut_completed(), title);
+                    }
+
                     let description = task.description();
                     if !description.is_empty() {
                         ui.label(description);
@@ -169,4 +180,15 @@ fn draw_task(ui: &mut Ui, task: Task) -> Task {
         });
 
     task
+}
+
+fn textfield(ui: &mut Ui, contents: String) -> String {
+    let mut contents = contents;
+    Frame::none()
+        .fill(Color32::LIGHT_GRAY)
+        .outer_margin(Margin::symmetric(0.0, TASK_OUTER_MARGIN))
+        .inner_margin(Margin::same(TASK_BORDER_WIDTH))
+        .rounding(Rounding::same(TASK_ROUNDING - 2.0))
+        .show(ui, |ui| ui.text_edit_singleline(&mut contents));
+    contents
 }
