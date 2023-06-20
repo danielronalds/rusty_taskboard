@@ -54,6 +54,10 @@ impl Task {
         TaskBuilder::default()
     }
 
+    pub fn completed(&self) -> bool {
+        self.completed
+    }
+
     /// Gets a mutable reference to the completed field of the task
     pub fn mut_completed(&mut self) -> &mut bool {
         &mut self.completed

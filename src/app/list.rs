@@ -67,6 +67,14 @@ pub fn draw_list_window(ctx: &Context, list: ListWindow) -> Option<ListWindow> {
                                 if ui.button("Edit").clicked() {
                                     list_window.editing = !list_window.editing;
                                 }
+                                if ui.button("Delete Completed").clicked() {
+                                    list_window.list = list_window
+                                        .list
+                                        .clone()
+                                        .into_iter()
+                                        .filter(|task| !task.completed())
+                                        .collect();
+                                }
                                 if ui.button("Delete").clicked() {
                                     delete_list = true;
                                 }
@@ -84,7 +92,7 @@ pub fn draw_list_window(ctx: &Context, list: ListWindow) -> Option<ListWindow> {
 
     match delete_list {
         false => Some(list_window),
-        true => None
+        true => None,
     }
 }
 
