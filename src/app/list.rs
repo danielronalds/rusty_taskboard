@@ -33,8 +33,9 @@ impl ListWindow {
 /// # Returns
 ///
 /// The list with any modifications that has happened
-pub fn draw_list_window(ctx: &Context, list: ListWindow) -> ListWindow {
+pub fn draw_list_window(ctx: &Context, list: ListWindow) -> Option<ListWindow> {
     let mut list_window = list;
+    let mut delete_list = false;
     egui::Window::new(&list_window.name)
         .resizable(false)
         .show(ctx, |ui| {
@@ -62,8 +63,13 @@ pub fn draw_list_window(ctx: &Context, list: ListWindow) -> ListWindow {
                                     }
                                 }
                             }
-                            ui.collapsing("Options", |ui| {
-                                ui.checkbox(&mut list_window.editing, "Editing");
+                            ui.horizontal(|ui| {
+                                if ui.button("Edit").clicked() {
+                                    list_window.editing = !list_window.editing;
+                                }
+                                if ui.button("Delete").clicked() {
+                                    delete_list = true;
+                                }
                             })
                         });
                 });
@@ -77,7 +83,11 @@ pub fn draw_list_window(ctx: &Context, list: ListWindow) -> ListWindow {
                 .map(|task| task.expect("These should all be Some()"))
                 .collect();
         });
-    list_window
+
+    match delete_list {
+        false => Some(list_window),
+        true => None
+    }
 }
 
 /// Draws the progress bar

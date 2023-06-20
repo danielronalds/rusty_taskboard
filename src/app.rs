@@ -12,7 +12,7 @@ const DEFAULT_PIXELS_PER_POINT: f32 = 1.5;
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(default)]
 pub struct RustyTaskboardApp {
-    list_window: ListWindow,
+    list_windows: Vec<ListWindow>,
 }
 
 impl RustyTaskboardApp {
@@ -24,9 +24,9 @@ impl RustyTaskboardApp {
 
         // Load previous app state (if any).
         // Note that you must enable the `persistence` feature for this to work.
-        if let Some(storage) = cc.storage {
+        /*if let Some(storage) = cc.storage {
             return eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
-        }
+        }*/
 
         Default::default()
     }
@@ -55,12 +55,19 @@ impl Default for RustyTaskboardApp {
         for task in tasks {
             list.add(task);
         }
-        let list_window = ListWindow::builder()
-            .name("Tasklist".to_string())
-            .list(list)
-            .build()
-            .unwrap();
-        Self { list_window }
+        Self {
+            list_windows: vec![
+                ListWindow::builder()
+                    .name("Tasklist".to_string())
+                    .list(list)
+                    .build()
+                    .unwrap(),
+                ListWindow::builder()
+                    .name("Second List".to_string())
+                    .build()
+                    .unwrap(),
+            ],
+        }
     }
 }
 
@@ -72,7 +79,13 @@ impl eframe::App for RustyTaskboardApp {
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            self.list_window = list::draw_list_window(&ctx, self.list_window.clone());
+            self.list_windows = self
+                .list_windows
+                .iter()
+                .map(|list_window| list::draw_list_window(&ctx, list_window.clone()))
+                .filter(|list| list.is_some())
+                .map(|list| list.expect("these should all be some"))
+                .collect();
         });
     }
 }
