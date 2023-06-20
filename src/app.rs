@@ -4,6 +4,8 @@ use eframe::egui;
 mod list;
 use list::ListWindow;
 
+mod topbar;
+
 use crate::task::{List, Task};
 
 /// Constant for the default pixels_per_point
@@ -78,12 +80,14 @@ impl eframe::App for RustyTaskboardApp {
     }
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |_ui| {
+        egui::CentralPanel::default().show(ctx, |ui| {
             self.list_windows = self
                 .list_windows
                 .iter()
                 .filter_map(|list_window| list::draw_list_window(ctx, list_window.clone()))
                 .collect();
+
+            topbar::draw_topbar(ui);
         });
     }
 }
