@@ -32,7 +32,7 @@ impl ListWindow {
 ///
 /// # Returns
 ///
-/// The list with any modifications that has happened
+/// The list with any modifications that has happened, or None if the list has been deleted
 pub fn draw_list_window(ctx: &Context, list: ListWindow) -> Option<ListWindow> {
     let mut list_window = list;
     let mut delete_list = false;
@@ -78,9 +78,7 @@ pub fn draw_list_window(ctx: &Context, list: ListWindow) -> Option<ListWindow> {
                 .list
                 .clone() // The clone is needed here due to the closure
                 .into_iter()
-                .map(|task| draw_task(ui, list_window.editing, task))
-                .filter(|task| task.is_some())
-                .map(|task| task.expect("These should all be Some()"))
+                .filter_map(|task| draw_task(ui, list_window.editing, task))
                 .collect();
         });
 

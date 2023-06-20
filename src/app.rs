@@ -82,9 +82,7 @@ impl eframe::App for RustyTaskboardApp {
             self.list_windows = self
                 .list_windows
                 .iter()
-                .map(|list_window| list::draw_list_window(&ctx, list_window.clone()))
-                .filter(|list| list.is_some())
-                .map(|list| list.expect("these should all be some"))
+                .filter_map(|list_window| list::draw_list_window(&ctx, list_window.clone()))
                 .collect();
         });
     }
