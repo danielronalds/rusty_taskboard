@@ -3,7 +3,7 @@ pub struct List(Vec<Task>);
 
 impl List {
     pub fn new() -> Self {
-        Self { 0: vec![] }
+        Self(vec![])
     }
 
     pub fn add(&mut self, task: Task) {
@@ -92,7 +92,7 @@ mod tests {
             .title("Testing".to_string())
             .build()
             .unwrap();
-        assert_eq!(task.completed, false);
+        assert!(!task.completed);
         assert_eq!(task.description, String::new());
     }
 }
