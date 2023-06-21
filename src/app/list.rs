@@ -15,6 +15,8 @@ pub struct ListWindow {
     task_to_add: String,
     #[builder(default = "false")]
     editing: bool,
+    #[builder(default = "true")]
+    visible: bool,
 }
 
 impl ListWindow {
@@ -29,6 +31,10 @@ impl ListWindow {
     pub fn set_name(&mut self, name: String) {
         self.name = name;
     }
+
+    pub fn mut_visible(&mut self) -> &mut bool {
+        &mut self.visible
+    }
 }
 
 /// Draws the list to a window
@@ -42,6 +48,10 @@ impl ListWindow {
 ///
 /// The list with any modifications that has happened, or None if the list has been deleted
 pub fn draw_list_window(ctx: &Context, list: ListWindow) -> Option<ListWindow> {
+    if !list.visible {
+        return Some(list);
+    }
+
     let mut list_window = list;
     let mut delete_list = false;
     egui::Window::new(&list_window.name)

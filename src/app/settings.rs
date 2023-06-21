@@ -16,68 +16,65 @@ pub fn draw_settings(ctx: &Context, lists: &[ListWindow]) -> Vec<ListWindow> {
 }
 
 /// The outer margin of the task widget
-const TASK_OUTER_MARGIN: f32 = 5.0;
+const SETTINGS_OUTER_MARGIN: f32 = 5.0;
 /// The inner margin of the task widget
-const TASK_INNER_MARGIN: f32 = 10.0;
+const SETTINGS_INNER_MARGIN: f32 = 10.0;
 /// How rounded the corners of the task widget should be
-const TASK_ROUNDING: f32 = 5.0;
+const SETTINGS_ROUNDING: f32 = 5.0;
 /// The border width of the task widget
-const TASK_BORDER_WIDTH: f32 = 1.0;
+const SETTINGS_BORDER_WIDTH: f32 = 1.0;
 
 fn draw_lists(ui: &mut Ui, lists: Vec<ListWindow>) -> Vec<ListWindow> {
     let mut lists = lists;
     Frame::none()
         .fill(Color32::LIGHT_GRAY)
-        .outer_margin(Margin::same(TASK_OUTER_MARGIN))
-        .rounding(Rounding::same(TASK_ROUNDING))
+        .outer_margin(Margin::same(SETTINGS_OUTER_MARGIN))
+        .rounding(Rounding::same(SETTINGS_ROUNDING))
         .show(ui, |ui| {
             Frame::none()
-                .outer_margin(Margin::same(TASK_BORDER_WIDTH))
-                .inner_margin(Margin::same(TASK_INNER_MARGIN))
-                .rounding(Rounding::same(TASK_ROUNDING))
+                .outer_margin(Margin::same(SETTINGS_BORDER_WIDTH))
+                .inner_margin(Margin::same(SETTINGS_INNER_MARGIN))
+                .rounding(Rounding::same(SETTINGS_ROUNDING))
                 .fill(Color32::WHITE)
                 .show(ui, |ui| {
                     ui.set_width(WINDOW_WIDTH);
                     ui.label("Lists");
-                    lists = lists.iter().filter_map(|list| draw_list(ui, list.clone())).collect();
+                    lists = lists
+                        .iter()
+                        .map(|list| draw_list(ui, list.clone()))
+                        .collect();
                 });
         });
     lists
 }
 
-fn draw_list(ui: &mut Ui, list: ListWindow) -> Option<ListWindow> {
-    let mut delete_list = false;
+fn draw_list(ui: &mut Ui, list: ListWindow) -> ListWindow {
     let mut list = list;
 
     ui.horizontal(|ui| {
         // Having a border frame here so that the button lines up with the text
         // edit field
         Frame::none()
-            .fill(Color32::LIGHT_GRAY)
-            .outer_margin(Margin::symmetric(0.0, TASK_OUTER_MARGIN))
-            .inner_margin(Margin::same(TASK_BORDER_WIDTH))
-            .rounding(Rounding::same(TASK_ROUNDING - 2.0))
+            .fill(Color32::WHITE)
+            .outer_margin(Margin::symmetric(0.0, SETTINGS_OUTER_MARGIN))
+            .inner_margin(Margin::same(SETTINGS_BORDER_WIDTH))
+            .rounding(Rounding::same(SETTINGS_ROUNDING - 2.0))
             .show(ui, |ui| {
-                if ui.button("X").clicked() {
-                    delete_list = true;
-                }
+                ui.checkbox(list.mut_visible(), "");
             });
         list.set_name(textfield(ui, list.name()));
     });
-    
-    match delete_list {
-        false => Some(list),
-        true => None,
-    }
+
+    list
 }
 
 fn textfield(ui: &mut Ui, contents: String) -> String {
     let mut contents = contents;
     Frame::none()
         .fill(Color32::LIGHT_GRAY)
-        .outer_margin(Margin::symmetric(0.0, TASK_OUTER_MARGIN))
-        .inner_margin(Margin::same(TASK_BORDER_WIDTH))
-        .rounding(Rounding::same(TASK_ROUNDING - 2.0))
+        .outer_margin(Margin::symmetric(0.0, SETTINGS_OUTER_MARGIN))
+        .inner_margin(Margin::same(SETTINGS_BORDER_WIDTH))
+        .rounding(Rounding::same(SETTINGS_ROUNDING - 2.0))
         .show(ui, |ui| ui.text_edit_singleline(&mut contents));
     contents
 }
