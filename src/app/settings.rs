@@ -11,6 +11,7 @@ pub fn draw_settings(ctx: &Context, lists: &[ListWindow]) -> Vec<ListWindow> {
         .resizable(false)
         .show(ctx, |ui| {
             lists = draw_lists(ui, lists.clone());
+            draw_version(ui);
         });
     lists
 }
@@ -23,6 +24,26 @@ const SETTINGS_INNER_MARGIN: f32 = 10.0;
 const SETTINGS_ROUNDING: f32 = 5.0;
 /// The border width of the task widget
 const SETTINGS_BORDER_WIDTH: f32 = 1.0;
+
+fn draw_version(ui: &mut Ui) {
+    Frame::none()
+        .fill(Color32::LIGHT_GRAY)
+        .outer_margin(Margin::same(SETTINGS_OUTER_MARGIN))
+        .rounding(Rounding::same(SETTINGS_ROUNDING))
+        .show(ui, |ui| {
+            Frame::none()
+                .outer_margin(Margin::same(SETTINGS_BORDER_WIDTH))
+                .inner_margin(Margin::same(SETTINGS_INNER_MARGIN))
+                .rounding(Rounding::same(SETTINGS_ROUNDING))
+                .fill(Color32::WHITE)
+                .show(ui, |ui| {
+                    ui.set_width(WINDOW_WIDTH);
+                    let version = env!("CARGO_PKG_VERSION");
+                    let label_text = format!("Rusty Taskboards v{}", version);
+                    ui.label(label_text);
+                });
+        });
+}
 
 fn draw_lists(ui: &mut Ui, lists: Vec<ListWindow>) -> Vec<ListWindow> {
     let mut lists = lists;
