@@ -8,14 +8,21 @@ const WINDOW_WIDTH: f32 = 250.0;
 
 #[derive(Builder, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ListWindow {
+    /// The name of the list
     name: String,
+    /// The id of the window
+    id: egui::Id,
     #[builder(default = "List::new()")]
+    /// The list of tasks to display in the list window
     list: List,
     #[builder(default = "String::new()")]
+    /// Variable to store the contents of the add task box
     task_to_add: String,
     #[builder(default = "false")]
+    /// Whether the window is being edited or not
     editing: bool,
     #[builder(default = "true")]
+    /// Whether to show the window or not
     visible: bool,
 }
 
@@ -56,6 +63,7 @@ pub fn draw_list_window(ctx: &Context, list: ListWindow) -> Option<ListWindow> {
     let mut delete_list = false;
     egui::Window::new(&list_window.name)
         .resizable(false)
+        .id(list_window.id)
         .show(ctx, |ui| {
             Frame::none()
                 .fill(Color32::LIGHT_GRAY)

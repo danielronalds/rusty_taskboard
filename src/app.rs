@@ -1,6 +1,8 @@
 //! This file contains the front end app built using eframe and egui
 use eframe::egui;
 
+use rand::Rng;
+
 mod list;
 use list::ListWindow;
 
@@ -66,11 +68,13 @@ impl Default for RustyTaskboardApp {
             list_windows: vec![
                 ListWindow::builder()
                     .name("Tasklist".to_string())
+                    .id(egui::Id::new(rand::thread_rng().gen_range(0..u64::MAX)))
                     .list(list)
                     .build()
                     .unwrap(),
                 ListWindow::builder()
                     .name("Second List".to_string())
+                    .id(egui::Id::new(rand::thread_rng().gen_range(0..u64::MAX)))
                     .build()
                     .unwrap(),
             ],

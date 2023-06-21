@@ -16,13 +16,13 @@ pub fn draw_settings(ctx: &Context, lists: &[ListWindow]) -> Vec<ListWindow> {
     lists
 }
 
-/// The outer margin of the task widget
+/// The outer margin of the settings widget
 const SETTINGS_OUTER_MARGIN: f32 = 5.0;
-/// The inner margin of the task widget
+/// The inner margin of the settings widget
 const SETTINGS_INNER_MARGIN: f32 = 10.0;
-/// How rounded the corners of the task widget should be
+/// How rounded the corners of the settings widget should be
 const SETTINGS_ROUNDING: f32 = 5.0;
-/// The border width of the task widget
+/// The border width of the settings widget
 const SETTINGS_BORDER_WIDTH: f32 = 1.0;
 
 fn draw_version(ui: &mut Ui) {

@@ -1,6 +1,8 @@
 //! This module contains the logic of the topbar
 use egui::{containers::Frame, style::Margin, Color32, FontId, RichText, Rounding, Ui};
 
+use rand::Rng;
+
 use crate::app::ListWindow;
 
 const TOPBAR_OUTER_MARGIN: f32 = 5.0;
@@ -34,6 +36,7 @@ impl TopBar {
                 Some(
                     ListWindow::builder()
                         .name(list.to_string())
+                        .id(egui::Id::new(rand::thread_rng().gen_range(0..u64::MAX)))
                         .build()
                         .unwrap(),
                 )
