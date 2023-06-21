@@ -96,7 +96,9 @@ impl eframe::App for RustyTaskboardApp {
                 self.list_windows.push(list_to_add);
             }
 
-            self.list_windows = settings::draw_settings(ctx, &self.list_windows);
+            if self.topbar.show_settings() {
+                self.list_windows = settings::draw_settings(ctx, &self.list_windows);
+            }
         });
     }
 }

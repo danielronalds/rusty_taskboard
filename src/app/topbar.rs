@@ -12,6 +12,7 @@ const TOPBAR_BORDER_WIDTH: f32 = 1.0;
 #[derive(serde::Deserialize, serde::Serialize)]
 pub struct TopBar {
     list_to_add: AddListResult,
+    show_settings: bool,
 }
 
 impl TopBar {
@@ -24,6 +25,7 @@ impl TopBar {
         ui.horizontal(|ui| {
             draw_logo(ui);
             self.list_to_add = add_list(ui, &self.list_to_add.unwrap());
+            self.show_settings = draw_show_settings(ui, self.show_settings);
         });
 
         match self.list_to_add.clone() {
@@ -39,12 +41,17 @@ impl TopBar {
             AddListResult::ContinueTyping(_) => None,
         }
     }
+
+    pub fn show_settings(&self) -> bool {
+        self.show_settings
+    }
 }
 
 impl Default for TopBar {
     fn default() -> Self {
         TopBar {
             list_to_add: AddListResult::ContinueTyping(String::new()),
+            show_settings: false,
         }
     }
 }
@@ -72,6 +79,36 @@ fn draw_logo(ui: &mut Ui) {
                     ui.label(RichText::new("Rusty Taskboard").font(FontId::proportional(18.0)));
                 });
         });
+}
+
+/// This function draws the show settings button
+///
+/// # Arguments
+///
+/// * `ui` - The UI to draw the topbar on
+fn draw_show_settings(ui: &mut Ui, show_settings: bool) -> bool {
+    let mut show_settings = show_settings;
+    Frame::none()
+        .fill(Color32::LIGHT_GRAY)
+        .outer_margin(Margin::symmetric(
+            TOPBAR_OUTER_MARGIN_SIDE,
+            TOPBAR_OUTER_MARGIN,
+        ))
+        .rounding(Rounding::same(TOPBAR_ROUNDING))
+        .show(ui, |ui| {
+            Frame::none()
+                .outer_margin(Margin::same(TOPBAR_BORDER_WIDTH))
+                .inner_margin(Margin::same(TOPBAR_INNER_MARGIN))
+                .rounding(Rounding::same(TOPBAR_ROUNDING))
+                .fill(Color32::WHITE)
+                .show(ui, |ui| {
+                    if ui.button("Settings").clicked() {
+                        show_settings = !show_settings;
+                    }
+                });
+        });
+
+    show_settings
 }
 
 #[derive(Clone, serde::Deserialize, serde::Serialize)]
