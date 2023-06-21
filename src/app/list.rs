@@ -172,10 +172,7 @@ fn draw_sort_button(ui: &mut Ui, list: List) -> List {
 /// List
 fn draw_delete_completed_tasks_button(ui: &mut Ui, list: List) -> List {
     if ui.button("Delete Completed").clicked() {
-        return list
-            .into_iter()
-            .filter(|task| !task.completed())
-            .collect();
+        return list.into_iter().filter(|task| !task.completed()).collect();
     }
     list
 }
