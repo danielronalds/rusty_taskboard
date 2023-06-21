@@ -27,18 +27,22 @@ pub struct ListWindow {
 }
 
 impl ListWindow {
+    /// Returns the ListWindowBuilder
     pub fn builder() -> ListWindowBuilder {
         ListWindowBuilder::default()
     }
 
+    /// Gets a clone of the name of the ListWindow
     pub fn name(&self) -> String {
         self.name.clone()
     }
 
+    /// Sets the name of the ListWindow
     pub fn set_name(&mut self, name: String) {
         self.name = name;
     }
 
+    /// Returns a mutable reference to the visible field
     pub fn mut_visible(&mut self) -> &mut bool {
         &mut self.visible
     }
@@ -90,35 +94,13 @@ pub fn draw_list_window(ctx: &Context, list: ListWindow) -> Option<ListWindow> {
                                 }
                             }
                             ui.horizontal(|ui| {
-                                if ui.button("Edit").clicked() {
-                                    list_window.editing = !list_window.editing;
-                                }
-                                if ui.button("Sort").clicked() {
-                                    list_window.list = list_window
-                                        .list
-                                        .clone()
-                                        .into_iter()
-                                        .filter(|task| task.completed())
-                                        .chain(
-                                            list_window
-                                                .list
-                                                .clone()
-                                                .into_iter()
-                                                .filter(|task| !task.completed()),
-                                        )
-                                        .collect();
-                                }
-                                if ui.button("Delete Completed").clicked() {
-                                    list_window.list = list_window
-                                        .list
-                                        .clone()
-                                        .into_iter()
-                                        .filter(|task| !task.completed())
-                                        .collect();
-                                }
-                                if ui.button("Delete").clicked() {
-                                    delete_list = true;
-                                }
+                                list_window.editing = draw_edit_button(ui, list_window.editing);
+                                list_window.list = draw_sort_button(ui, list_window.list.clone());
+                                list_window.list = draw_delete_completed_tasks_button(
+                                    ui,
+                                    list_window.list.clone(),
+                                );
+                                delete_list = draw_delete_list(ui);
                             })
                         });
                 });
@@ -137,7 +119,82 @@ pub fn draw_list_window(ctx: &Context, list: ListWindow) -> Option<ListWindow> {
     }
 }
 
-/// Draws the progress bar
+/// Function to draw the edit button
+///
+/// # Arguments
+///
+/// * `ui`      - The UI to draw the button onto
+/// * `editing` - The current value of editing
+///
+/// # Returns
+///
+/// The new value of editing
+fn draw_edit_button(ui: &mut Ui, editing: bool) -> bool {
+    if ui.button("Edit").clicked() {
+        return !editing;
+    }
+    editing
+}
+
+/// Function to draw the sort button
+///
+/// # Arguments
+///
+/// * `ui`   - The UI to draw the button onto
+/// * `list` - The list of tasks to sort
+///
+/// # Returns
+///
+/// `list` sorted with completed tasks at the top if the button is clicked, otherwise the original
+/// List
+fn draw_sort_button(ui: &mut Ui, list: List) -> List {
+    if ui.button("Sort").clicked() {
+        return list
+            .clone()
+            .into_iter()
+            .filter(|task| task.completed())
+            .chain(list.clone().into_iter().filter(|task| !task.completed()))
+            .collect();
+    }
+    list
+}
+
+/// Function to draw the delete completed tasks button
+///
+/// # Arguments
+///
+/// * `ui`   - The UI to draw the button onto
+/// * `list` - The list of tasks to filter
+///
+/// # Returns
+///
+/// `list` sorted with completed tasks deleted if the button is clicked, otherwise the original
+/// List
+fn draw_delete_completed_tasks_button(ui: &mut Ui, list: List) -> List {
+    if ui.button("Delete Completed").clicked() {
+        return list
+            .clone()
+            .into_iter()
+            .filter(|task| !task.completed())
+            .collect();
+    }
+    list
+}
+
+/// Function to draw the delete list button
+///
+/// # Arguments
+///
+/// * `ui` - The UI to draw the button onto
+///
+/// # Returns
+///
+/// Whether the button was clicked or not
+fn draw_delete_list(ui: &mut Ui) -> bool {
+    ui.button("Delete").clicked()
+}
+
+/// Function to draw the progress bar
 ///
 /// # Arguments
 ///
@@ -159,7 +216,7 @@ enum AddTaskResult {
 ///
 /// # Arguments
 ///
-/// * `ui`        - The ui to draw the textbox on
+/// * `ui`        - The UI to draw the textbox on
 /// * `task_name` - The tasks to adds name, aka the contents of the textbox
 ///
 /// # Returns
@@ -262,6 +319,16 @@ fn draw_task(ui: &mut Ui, editing: bool, task: Task) -> Option<Task> {
     }
 }
 
+/// Draws a singleline text edit to the UI with a frame border
+///
+/// # Arguments
+///
+/// * `ui`       - The UI to draw the text edit on
+/// * `contents` - The contents of the text edit
+///
+/// # Returns
+///
+/// The contents of the text edit after user interaction
 fn textfield(ui: &mut Ui, contents: String) -> String {
     let mut contents = contents;
     Frame::none()
