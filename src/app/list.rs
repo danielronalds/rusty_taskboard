@@ -153,7 +153,7 @@ fn draw_sort_button(ui: &mut Ui, list: List) -> List {
             .clone()
             .into_iter()
             .filter(|task| task.completed())
-            .chain(list.clone().into_iter().filter(|task| !task.completed()))
+            .chain(list.into_iter().filter(|task| !task.completed()))
             .collect();
     }
     list
@@ -173,7 +173,6 @@ fn draw_sort_button(ui: &mut Ui, list: List) -> List {
 fn draw_delete_completed_tasks_button(ui: &mut Ui, list: List) -> List {
     if ui.button("Delete Completed").clicked() {
         return list
-            .clone()
             .into_iter()
             .filter(|task| !task.completed())
             .collect();

@@ -35,7 +35,7 @@ impl TopBar {
                 self.list_to_add = AddListResult::ContinueTyping(String::new());
                 Some(
                     ListWindow::builder()
-                        .name(list.to_string())
+                        .name(list)
                         .id(egui::Id::new(rand::thread_rng().gen_range(0..u64::MAX)))
                         .build()
                         .unwrap(),
