@@ -12,9 +12,9 @@ impl List {
 
     /// The progress of the list as a percentage
     pub fn progress(&self) -> f32 {
-        let completed_value = self.0.len() as f32;
+        let total_tasks = self.0.len() as f32;
         let completed_tasks = self.0.iter().filter(|x| x.completed).count() as f32;
-        completed_tasks / completed_value
+        completed_tasks / total_tasks
     }
 }
 
