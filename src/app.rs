@@ -7,6 +7,8 @@ use list::ListWindow;
 mod topbar;
 use topbar::TopBar;
 
+mod settings;
+
 use crate::task::{List, Task};
 
 /// Constant for the default pixels_per_point
@@ -93,6 +95,8 @@ impl eframe::App for RustyTaskboardApp {
             if let Some(list_to_add) = self.topbar.draw(ui) {
                 self.list_windows.push(list_to_add);
             }
+
+            self.list_windows = settings::draw_settings(ctx, &self.list_windows);
         });
     }
 }

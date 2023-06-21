@@ -21,6 +21,14 @@ impl ListWindow {
     pub fn builder() -> ListWindowBuilder {
         ListWindowBuilder::default()
     }
+
+    pub fn name(&self) -> String {
+        self.name.clone()
+    }
+
+    pub fn set_name(&mut self, name: String) {
+        self.name = name;
+    }
 }
 
 /// Draws the list to a window
