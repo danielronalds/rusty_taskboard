@@ -5,6 +5,7 @@ mod list;
 use list::ListWindow;
 
 mod topbar;
+use topbar::TopBar;
 
 use crate::task::{List, Task};
 
@@ -14,6 +15,7 @@ const DEFAULT_PIXELS_PER_POINT: f32 = 1.5;
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(default)]
 pub struct RustyTaskboardApp {
+    topbar: TopBar,
     list_windows: Vec<ListWindow>,
 }
 
@@ -58,6 +60,7 @@ impl Default for RustyTaskboardApp {
             list.add(task);
         }
         Self {
+            topbar: TopBar::default(),
             list_windows: vec![
                 ListWindow::builder()
                     .name("Tasklist".to_string())
@@ -87,7 +90,9 @@ impl eframe::App for RustyTaskboardApp {
                 .filter_map(|list_window| list::draw_list_window(ctx, list_window.clone()))
                 .collect();
 
-            topbar::draw_topbar(ui);
+            if let Some(list_to_add) = self.topbar.draw(ui) {
+                self.list_windows.push(list_to_add);
+            }
         });
     }
 }
